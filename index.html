@@ -25,13 +25,17 @@
       line-height: 1.7;
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
+      gap: 24px;
       padding: 24px;
+    }
+    @media (max-width: 900px) {
+      body { flex-direction: column; align-items: center; }
     }
     .card {
       background: var(--surface);
-      max-width: 760px;
+      max-width: 960px;
       width: 100%;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -302,9 +306,86 @@
       margin-right: 6px;
       margin-bottom: 6px;
     }
+    .wordcloud {
+      max-width: 100%;
+      border-radius: 14px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    /* 题目目录索引 */
+    .toc {
+      width: 220px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 24px;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      font-size: 0.92rem;
+    }
+    .toc-header {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .toc-back {
+      width: 100%;
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+    }
+    .toc-section {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 14px 0 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .toc-item {
+      padding: 7px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background .15s ease, color .15s ease;
+    }
+    .toc-item:hover { background: var(--accent-light); color: var(--text); }
+    .toc-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .toc-check {
+      display: inline-block;
+      width: 1.2em;
+      color: #2e9d4f;
+      font-weight: 700;
+      margin-right: 4px;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .toc {
+        width: 100%;
+        max-width: 760px;
+        position: static;
+        max-height: 42vh;
+        order: -1;
+      }
+    }
   </style>
 </head>
 <body>
+  <aside id="toc" class="toc hidden">
+    <div class="toc-header">题目索引</div>
+    <button id="backBtn" class="btn btn-secondary toc-back" onclick="goBack()" disabled>← 返回</button>
+    <div id="tocList" class="toc-list"></div>
+  </aside>
+
   <main class="card">
     <!-- 欢迎页 -->
     <section id="welcome" class="fade">
@@ -312,10 +393,11 @@
       <p class="subtitle">从达马西奥的身体自我，到丹尼特的多重草稿，再到梅辛格的自我隧道……意识研究有截然不同的路径。回答 25 个问题，看看你的直觉最接近哪一位（或哪一派）思想家。</p>
       <div class="intro">
         <p>本测试基于七位意识研究领域代表人物的核心立场设计：</p>
-        <p>安东尼奥·达马西奥、托马斯·梅辛格、丹尼尔·丹尼特、克里斯托弗·科赫、伯纳德·巴尔斯、安迪·克拉克、瓦雷拉 / 汤普森 / 罗施。</p>
+        <p>安东尼奥·达马西奥、托马斯·梅辛格、丹尼尔·丹尼特、克里斯托夫·科赫、伯纳德·巴尔斯、安迪·克拉克、瓦雷拉 / 汤普森 / 罗施。</p>
         <p>请注意：测试中出现的「引用观点」或「被批判观点」并不代表作者本人立场；计分映射已经尽量反映每位学者本人支持的理论取向。</p>
       </div>
       <button class="btn btn-primary" onclick="showTutorialIntro()">开始测试</button>
+      <p class="note" style="margin-top: 22px; padding-top: 14px;">本网站使用「kimi-k2.7-code」辅助完成，由「ChatGPT」生成图片。</p>
     </section>
 
     <!-- 前置提示页 -->
@@ -351,6 +433,7 @@
     <!-- 结果页 -->
     <section id="result" class="hidden fade">
       <div class="question-number">你的测试结果</div>
+      <img id="rWordCloud" class="wordcloud" alt="科学家词云图" src="">
       <h2 class="result-name" id="rName"></h2>
       <p class="result-tagline" id="rTagline"></p>
       <div class="match-badge" id="rMatch"></div>
@@ -410,6 +493,7 @@
         tagline: '身体是意识的根基，自我是一种动态加工。',
         keywords: ['原我', '核心自我', '自传体自我', '躯体标记', '原始感受', '内稳态'],
         books: '代表资料：《当自我来敲门》《感受发生的一切》《笛卡尔的错误》',
+        image: '词云图/安东尼奥·达马西奥.png',
         desc: '达马西奥认为，有意识心智的诞生离不开「自我加工」。这种自我不是固定实体，而是从原我（proto-self）经核心自我到自传体自我的动态演化过程。身体状态通过脑干映射形成「原始感受」，情绪与感受参与价值评估和决策。意识是生命内稳态调控在演化中的延伸，反对笛卡尔式的心身二元论，也反对用量子力学等神秘物解释意识。',
         stance: '本人观点：意识是具有主体性的心智，自我加工不可或缺；躯体是有意识心智的基础；原始感受起源于脑干；意识是多脑区协作的涌现结果。',
         reading: [
@@ -424,6 +508,7 @@
         tagline: '没有实体自我，只有「现象自我模型」。',
         keywords: ['现象自我模型', '自我隧道', '透明性', '最小现象自我', '离体体验', '自由意志幻觉'],
         books: '代表资料：《自我隧道》《Being No One》',
+        image: '词云图/托马斯·梅辛格.png',
         desc: '梅辛格主张，并不存在一个内在持存的「自我实体」，大脑只生成了一个透明的「现象自我模型」（PSM）。我们生活在一个由大脑构建的「自我隧道」中，误以为隧道尽头的那个「我」是真实的。离体体验、橡胶手错觉等表明自我可以与身体解耦；自由意志与认知能动性在深层上是一种幻觉。意识研究必须认真对待第一人称体验。',
         stance: '本人观点：主体性源于透明的自我模型；最小现象自我包括自我定位、自我认同与第一人称视角；意识是大脑生成的世界模拟；自我可在实验中解耦。',
         reading: [
@@ -438,6 +523,7 @@
         tagline: '意识是多重草稿的胜出者，自我是叙事重心。',
         keywords: ['意向立场', '多重草稿模型', '叙事重心', '反对笛卡尔剧场', '异己现象学', '功能主义'],
         books: '代表资料：《心灵种种》《意识的解释》《意向立场》',
+        image: '词云图/丹尼尔·丹尼特.png',
         desc: '丹尼特反对大脑中存在一个「中央舞台」或「内在小人」。意识是并行加工的多重草稿相互竞争的结果，获胜的草稿成为当下经验；自我则是随时间编织出来的「叙事重心」。他主张用「异己现象学」从第三人称研究意识，拒斥不可还原的「感质」（qualia）。心灵是进化的产物，不同复杂度的系统拥有不同「种类的心灵」。',
         stance: '本人观点：意识没有神秘本质；自我不是内部实体；意向立场是解释行为的真实模式；功能主义与计算主义是理解心智的合适框架。',
         reading: [
@@ -448,10 +534,11 @@
       },
       koch: {
         id: 'koch',
-        name: '克里斯托弗·科赫（Christof Koch）',
+        name: '克里斯托夫·科赫（Christof Koch）',
         tagline: '寻找意识的神经相关物，坚持还原论路径。',
         keywords: ['神经相关物 NCC', '还原论', '后皮质热点', '整合信息论 IIT', '意识广泛分布'],
         books: '代表资料：《意识与脑：一个还原论者的浪漫自白》',
+        image: '词云图/克里斯托夫·科赫.png',
         desc: '科赫与克里克共同推进了「意识的神经相关物」（NCC）研究计划：找到产生任何特定意识知觉的最小神经机制。他认为意识是可用神经科学逐步还原的生物现象，并强调不能把意识等同于所有脑活动。后期他大力支持朱利奥·托诺尼的整合信息论（IIT），认为意识对应系统的信息整合能力（Φ），因此可能广泛存在于动物中，但计算机模拟因缺乏正确因果结构而不会拥有意识。',
         stance: '本人观点：意识可被还原为神经机制；NCC 是意识科学的核心目标；意识与特定神经结构/信息整合能力相关，而非单纯的计算模拟。',
         reading: [
@@ -466,6 +553,7 @@
         tagline: '意识是进入全局工作空间并被广播的信息。',
         keywords: ['全局工作空间理论', '无意识模块', '注意力聚光灯', '信息广播', '可及性'],
         books: '代表资料：《意识的认知理论》《In the Theater of Consciousness》',
+        image: '词云图/伯纳德·巴尔斯.png',
         desc: '巴尔斯提出全局工作空间理论（GWT）：大脑由大量并行运作的无意识专门模块组成，它们竞争进入有限容量的「全局工作空间」。被注意力选中并广播到全脑的信息，才成为意识内容。该理论用「剧院隐喻」帮助理解：舞台是意识内容，聚光灯是注意，观众/后台是无意识加工。GWT 强调意识的功能在于整合分散信息以支持复杂行为。',
         stance: '本人观点：意识即信息的全局可及性与广播；注意力决定哪些内容进入意识；大多数认知加工是无意识的。',
         reading: [
@@ -480,6 +568,7 @@
         tagline: '大脑是预测机器，心智深嵌于身体与世界。',
         keywords: ['预测加工', '自由能原理', '预测误差', '主动推断', '具身认知', '延展心智'],
         books: '代表资料：《预测算法：具身智能如何应对不确定性》',
+        image: '词云图/安迪·克拉克.png',
         desc: '克拉克倡导预测加工与自由能原理：大脑不是被动接收感觉输入，而是持续生成关于世界的预测，并通过最小化「预测误差」来更新模型。感知与行动是同一过程的两面——行动是为了改变感觉输入以减少预测误差（主动推断）。心智不是仅发生在大脑内部，而是深嵌于身体并与环境耦合。',
         stance: '本人观点：大脑是层级化的预测机器；感知是自上而下预测与自下而上误差的结合；认知是具身、嵌入并延展的。',
         reading: [
@@ -494,6 +583,7 @@
         tagline: '认知不是表征世界，而是在行动中生成世界。',
         keywords: ['生成论', '具身心智', '自创生', '结构耦合', '知觉引导行动', '现象学'],
         books: '代表资料：《具身心智：认知科学和人类经验》',
+        image: '词云图/瓦雷拉.png',
         desc: '《具身心智》提出「生成论」（enactivism）：认知不是对预成世界的内部表征，而是行动者通过感知-运动活动「生成」一个世界和心智。身体具有特定的感知-运动能力，这些能力嵌入生物、心理和文化情境中。作者融合梅洛-庞蒂现象学、胡塞尔现象学与佛教中观思想，强调第一人称经验，并发展出「神经现象学」方法。',
         stance: '本人观点：反对计算-表征主义；认知是知觉引导的行动；生命系统通过自创生和结构耦合与环境共同构成意义。',
         reading: [
@@ -729,19 +819,101 @@
     // 每道题每位学者能获得的最高可能分（同一题内取最大值，再跨题累加）
     const maxPossible = { damasio:45, metzinger:43, dennett:41, koch:28, baars:37, clark:37, varela:32 };
     let selectedAnswers = []; // 记录每道题选择的选项 key
+    let historyStack = [];    // 记录浏览历史，用于「返回」
+
+    function getPosition() {
+      if (!document.getElementById('tutorial-intro').classList.contains('hidden')) return {page:'tutorial-intro'};
+      if (!document.getElementById('tutorial').classList.contains('hidden')) return {page:'tutorial', idx: currentTutorial};
+      if (!document.getElementById('quiz').classList.contains('hidden')) return {page:'quiz', idx: current};
+      if (!document.getElementById('result').classList.contains('hidden')) return {page:'result'};
+      if (!document.getElementById('all-scientists').classList.contains('hidden')) return {page:'all-scientists'};
+      return {page:'welcome'};
+    }
+
+    function recordPosition() {
+      historyStack.push(getPosition());
+      updateTocActive();
+    }
+
+    function updateTocActive() {
+      const items = document.querySelectorAll('#tocList .toc-item');
+      items.forEach(el => el.classList.remove('active'));
+      // 更新正式题完成勾
+      const startFormal = 1 + tutorialQuestions.length;
+      questions.forEach((q, i) => {
+        const item = items[startFormal + i];
+        if (!item) return;
+        const check = item.querySelector('.toc-check');
+        if (check) check.textContent = selectedAnswers[i] ? '✓' : '';
+      });
+      let idx = -1;
+      if (!document.getElementById('tutorial-intro').classList.contains('hidden')) idx = 0;
+      else if (!document.getElementById('tutorial').classList.contains('hidden')) idx = 1 + currentTutorial;
+      else if (!document.getElementById('quiz').classList.contains('hidden')) idx = startFormal + current;
+      if (idx >= 0 && items[idx]) items[idx].classList.add('active');
+      const backBtn = document.getElementById('backBtn');
+      if (backBtn) backBtn.disabled = historyStack.length === 0;
+    }
+
+    function goBack() {
+      const pos = historyStack.pop();
+      if (!pos) return;
+      if (pos.page === 'welcome') show('welcome');
+      else if (pos.page === 'tutorial-intro') show('tutorial-intro');
+      else if (pos.page === 'tutorial') { currentTutorial = pos.idx; show('tutorial'); renderTutorialQuestion(); }
+      else if (pos.page === 'quiz') { current = pos.idx; show('quiz'); renderQuestion(); }
+      else if (pos.page === 'result') showResult();
+      else if (pos.page === 'all-scientists') showAll();
+    }
+
+    function buildToc() {
+      const list = document.getElementById('tocList');
+      list.innerHTML = '';
+      const makeSection = title => {
+        const el = document.createElement('div');
+        el.className = 'toc-section';
+        el.textContent = title;
+        return el;
+      };
+      const makeItem = (label, action) => {
+        const el = document.createElement('div');
+        el.className = 'toc-item';
+        el.innerHTML = label;
+        el.onclick = action;
+        return el;
+      };
+
+      list.appendChild(makeItem('前置提示', () => { recordPosition(); show('tutorial-intro'); }));
+      list.appendChild(makeSection('确认题'));
+      tutorialQuestions.forEach((q, i) => {
+        list.appendChild(makeItem(`${i+1}. ${q.term}`, () => { recordPosition(); currentTutorial = i; show('tutorial'); renderTutorialQuestion(); }));
+      });
+      list.appendChild(makeSection('正式题'));
+      questions.forEach((q, i) => {
+        const short = q.text.length > 18 ? q.text.slice(0, 18) + '…' : q.text;
+        list.appendChild(makeItem(`<span class="toc-check"></span>${i+1}. ${short}`, () => { recordPosition(); current = i; show('quiz'); renderQuestion(); }));
+      });
+      updateTocActive();
+    }
 
     function show(id) {
       ['welcome','tutorial-intro','tutorial','quiz','result','all-scientists'].forEach(s => document.getElementById(s).classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
       document.getElementById(id).classList.add('fade');
+      const toc = document.getElementById('toc');
+      if (['tutorial-intro','tutorial','quiz'].includes(id)) toc.classList.remove('hidden');
+      else toc.classList.add('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateTocActive();
     }
 
     function showTutorialIntro() {
+      recordPosition();
       show('tutorial-intro');
     }
 
     function startTutorial() {
+      recordPosition();
       currentTutorial = 0;
       show('tutorial');
       renderTutorialQuestion();
@@ -755,14 +927,16 @@
       opts.innerHTML = '';
       opts.appendChild(createOptionButton('A', '我理解了，继续吧', () => nextTutorial()));
       opts.appendChild(createOptionButton('B', '我未理解，但先让我看看后面的', () => nextTutorial()));
+      updateTocActive();
     }
 
     function nextTutorial() {
+      recordPosition();
       currentTutorial++;
       if (currentTutorial < tutorialQuestions.length) {
         renderTutorialQuestion();
       } else {
-        startQuiz();
+        startQuiz(true);
       }
     }
 
@@ -774,7 +948,8 @@
       return btn;
     }
 
-    function startQuiz() {
+    function startQuiz(skipRecord = false) {
+      if (!skipRecord) recordPosition();
       current = 0;
       selectedAnswers = new Array(questions.length).fill(null);
       for (const k in scores) scores[k] = 0;
@@ -811,6 +986,7 @@
       hint.textContent = hasAnswer
         ? '已选择，可点击「下一题」继续，或点击「上一题」返回修改'
         : '请选择一项后点击「下一题」';
+      updateTocActive();
     }
 
     function selectOption(key) {
@@ -828,18 +1004,30 @@
       renderQuestion();
     }
 
+    function allQuestionsAnswered() {
+      return selectedAnswers.every(a => a !== null);
+    }
+
     function goNext() {
       if (selectedAnswers[current] === null) return;
-      current++;
-      if (current < questions.length) {
-        renderQuestion();
-      } else {
+      if (current === questions.length - 1) {
+        if (!allQuestionsAnswered()) {
+          const unanswered = selectedAnswers.map((a, i) => a === null ? i + 1 : null).filter(n => n !== null);
+          document.getElementById('quizHint').textContent = `请先完成全部 25 道正式题再查看结果。未答题：第 ${unanswered.join('、')} 题`;
+          return;
+        }
+        recordPosition();
         showResult();
+        return;
       }
+      recordPosition();
+      current++;
+      renderQuestion();
     }
 
     function goPrev() {
       if (current > 0) {
+        recordPosition();
         current--;
         renderQuestion();
       }
@@ -854,6 +1042,7 @@
 
       const top = ranked[0];
       const s = scientists[top.id];
+      document.getElementById('rWordCloud').src = s.image;
       document.getElementById('rName').textContent = s.name;
       document.getElementById('rTagline').textContent = s.tagline;
       document.getElementById('rMatch').textContent = `匹配度 ${top.pct}%`;
@@ -903,6 +1092,7 @@
     }
 
     function showAll() {
+      recordPosition();
       show('all-scientists');
       const list = document.getElementById('allList');
       list.innerHTML = Object.values(scientists).map(s => `
@@ -917,8 +1107,11 @@
     }
 
     function backToResult() {
+      recordPosition();
       show('result');
     }
+
+    buildToc();
   </script>
 </body>
 </html>
