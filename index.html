@@ -1030,4 +1030,296 @@
     }
 
     function buildToc() {
-      const list = document.getElementById('tocLis
+      const list = document.getElementById('tocList');
+      list.innerHTML = '';
+      const makeSection = title => {
+        const el = document.createElement('div');
+        el.className = 'toc-section';
+        el.textContent = title;
+        return el;
+      };
+      const makeItem = (label, action) => {
+        const el = document.createElement('div');
+        el.className = 'toc-item';
+        el.innerHTML = label;
+        el.onclick = action;
+        return el;
+      };
+
+      list.appendChild(makeItem('前置提示', () => { recordPosition(); show('tutorial-intro'); }));
+      list.appendChild(makeSection('确认题'));
+      tutorialQuestions.forEach((q, i) => {
+        list.appendChild(makeItem(`${i+1}. ${q.term}`, () => { recordPosition(); currentTutorial = i; show('tutorial'); renderTutorialQuestion(); }));
+      });
+      list.appendChild(makeSection('正式题'));
+      questions.forEach((q, i) => {
+        const short = q.text.length > 18 ? q.text.slice(0, 18) + '…' : q.text;
+        list.appendChild(makeItem(`<span class="toc-check"></span>${i+1}. ${short}`, () => { recordPosition(); current = i; show('quiz'); renderQuestion(); }));
+      });
+      updateTocActive();
+    }
+
+    function show(id) {
+      ['welcome','tutorial-intro','tutorial','quiz','result','result-disagree','result-dontknow','all-scientists'].forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.classList.add('hidden');
+      });
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(id).classList.add('fade');
+      const toc = document.getElementById('toc');
+      if (['tutorial-intro','tutorial','quiz'].includes(id)) toc.classList.remove('hidden');
+      else toc.classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateTocActive();
+    }
+
+    function showTutorialIntro() {
+      recordPosition();
+      show('tutorial-intro');
+    }
+
+    function startTutorial() {
+      recordPosition();
+      currentTutorial = 0;
+      show('tutorial');
+      renderTutorialQuestion();
+    }
+
+    function renderTutorialQuestion() {
+      const q = tutorialQuestions[currentTutorial];
+      document.getElementById('tNumber').textContent = `名词释义 ${currentTutorial + 1} / ${tutorialQuestions.length}`;
+      document.getElementById('tText').textContent = `Q：「${q.term}」是指${q.text}`;
+      const opts = document.getElementById('tOptions');
+      opts.innerHTML = '';
+      opts.appendChild(createOptionButton('A', '我理解了，继续吧', () => nextTutorial()));
+      opts.appendChild(createOptionButton('B', '我未理解，但先让我看看后面的', () => nextTutorial()));
+      updateTocActive();
+    }
+
+    function nextTutorial() {
+      recordPosition();
+      currentTutorial++;
+      if (currentTutorial < tutorialQuestions.length) {
+        renderTutorialQuestion();
+      } else {
+        startQuiz(true);
+      }
+    }
+
+    function createOptionButton(label, text, onClick, isSpecial = false) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-option' + (isSpecial ? ' special' : '');
+      btn.innerHTML = `<span class="label">${label}</span><span>${text}</span>`;
+      btn.onclick = onClick;
+      return btn;
+    }
+
+    function startQuiz(skipRecord = false) {
+      if (!skipRecord) recordPosition();
+      current = 0;
+      selectedAnswers = new Array(questions.length).fill(null);
+      for (const k in scores) scores[k] = 0;
+      show('quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[current];
+      document.getElementById('progressBar').style.width = ((current / questions.length) * 100) + '%';
+      document.getElementById('qNumber').textContent = `问题 ${current + 1} / ${questions.length}`;
+      document.getElementById('qText').textContent = q.text;
+      const opts = document.getElementById('options');
+      opts.innerHTML = '';
+      const selected = selectedAnswers[current];
+      optionLabels.forEach(key => {
+        const opt = q[key];
+        if (!opt) return;
+        const btn = createOptionButton(key, opt.text, () => selectOption(key));
+        if (selected === key) btn.classList.add('selected');
+        opts.appendChild(btn);
+      });
+
+      // 特殊选项
+      specialKeys.forEach(key => {
+        const sOpt = q.special && q.special[key];
+        if (!sOpt) return;
+        const btn = createOptionButton(specialLabels[key], sOpt.text, () => selectOption(key), true);
+        if (selected === key) btn.classList.add('selected');
+        opts.appendChild(btn);
+      });
+
+      // 更新导航按钮状态
+      document.getElementById('prevBtn').disabled = current === 0;
+      const nextBtn = document.getElementById('nextBtn');
+      const hasAnswer = selected !== null;
+      nextBtn.textContent = current === questions.length - 1 ? '查看结果' : '下一题 →';
+      nextBtn.disabled = !hasAnswer;
+
+      const hint = document.getElementById('quizHint');
+      hint.textContent = hasAnswer
+        ? '已选择，可点击「下一题」继续，或点击「上一题」返回修改'
+        : '请选择一项后点击「下一题」（「我不知道」「我都不同意」也是有效选项）';
+      updateTocActive();
+    }
+
+    function selectOption(key) {
+      const q = questions[current];
+      // 如果已有选择，先撤销旧分数
+      const oldKey = selectedAnswers[current];
+      if (oldKey && !isSpecial(oldKey) && q[oldKey] && q[oldKey].scores) {
+        const oldDelta = q[oldKey].scores;
+        for (const k in oldDelta) scores[k] -= oldDelta[k];
+      }
+      // 应用新选择分数（特殊选项不计分）
+      if (!isSpecial(key) && q[key] && q[key].scores) {
+        const delta = q[key].scores;
+        for (const k in delta) scores[k] += delta[k];
+      }
+      selectedAnswers[current] = key;
+      renderQuestion();
+    }
+
+    function allQuestionsAnswered() {
+      return selectedAnswers.every(a => a !== null);
+    }
+
+    function goNext() {
+      if (selectedAnswers[current] === null) return;
+      if (current === questions.length - 1) {
+        if (!allQuestionsAnswered()) {
+          const unanswered = selectedAnswers.map((a, i) => a === null ? i + 1 : null).filter(n => n !== null);
+          document.getElementById('quizHint').textContent = `请先完成全部 25 道正式题再查看结果。未答题：第 ${unanswered.join('、')} 题`;
+          return;
+        }
+        recordPosition();
+        showResult();
+        return;
+      }
+      recordPosition();
+      current++;
+      renderQuestion();
+    }
+
+    function goPrev() {
+      if (current > 0) {
+        recordPosition();
+        current--;
+        renderQuestion();
+      }
+    }
+
+    function computeRanked() {
+      return Object.keys(scientists).map(id => {
+        return { id, score: scores[id], pct: Math.round((scores[id] / maxPossible[id]) * 100) };
+      }).sort((a,b) => b.pct - a.pct);
+    }
+
+    function renderProfile(containerId, ranked, topId) {
+      const profileEl = document.getElementById(containerId);
+      profileEl.innerHTML = ranked.map(r => {
+        const rs = scientists[r.id];
+        const shortName = rs.name.split('（')[0].replace(/瓦雷拉 \/ 汤普森 \/ 罗施/, '瓦雷拉/汤普森/罗施');
+        const highlight = r.id === topId ? ' highlight' : '';
+        return `
+          <div class="profile-bar">
+            <div class="profile-label" title="${rs.name}">${shortName}</div>
+            <div class="profile-track"><div class="profile-fill${highlight}" style="width:${r.pct}%"></div></div>
+            <div class="profile-pct">${r.pct}%</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRunnerUps(containerId, ranked, start = 1, limit = 3) {
+      const runnerUps = ranked.slice(start, start + limit);
+      document.getElementById(containerId).innerHTML = runnerUps.map(r => {
+        const rs = scientists[r.id];
+        return `<li><strong>${rs.name.split('（')[0]}</strong> — ${rs.tagline}（匹配度 ${r.pct}%）</li>`;
+      }).join('');
+    }
+
+    function showResult() {
+      const disagreeCount = selectedAnswers.filter(a => a === 'disagree').length;
+      const dontKnowCount = selectedAnswers.filter(a => a === 'dontKnow').length;
+      const ranked = computeRanked();
+      const top = ranked[0];
+
+      // 特殊结果优先于普通学者结果
+      if (disagreeCount > dontKnowCount && disagreeCount > 0) {
+        showResultDisagree(ranked, disagreeCount);
+      } else if (dontKnowCount > disagreeCount && dontKnowCount > 0) {
+        showResultDontKnow(ranked, dontKnowCount);
+      } else {
+        showResultScientist(ranked, top);
+      }
+    }
+
+    function showResultScientist(ranked, top) {
+      show('result');
+      const s = scientists[top.id];
+      document.getElementById('rWordCloud').src = s.image;
+      document.getElementById('rName').textContent = s.name;
+      document.getElementById('rTagline').textContent = s.tagline;
+      document.getElementById('rMatch').textContent = `匹配度 ${top.pct}%`;
+      document.getElementById('rKeywords').innerHTML = s.keywords.map(k => `<span class="keyword">${k}</span>`).join('');
+      document.getElementById('rBooks').textContent = s.books;
+      document.getElementById('rDesc').textContent = s.desc;
+      document.getElementById('rStance').textContent = s.stance;
+
+      renderProfile('rProfile', ranked, top.id);
+
+      document.getElementById('rReadingIntro').textContent = `你的意识观最接近 ${s.name.split('（')[0]}，以下是为这种取向量身推荐的阅读路径：`;
+      document.getElementById('rReadingList').innerHTML = s.reading.map(item => `<li>${item}</li>`).join('');
+
+      renderRunnerUps('rRunnerUps', ranked, 1, 3);
+
+      const lowest = ranked[ranked.length - 1];
+      const lowestName = scientists[lowest.id].name.split('（')[0];
+      document.getElementById('rTension').innerHTML = `
+        你与 <strong>${lowestName}</strong> 的匹配度最低（${lowest.pct}%），这意味着你在
+        <span class="tag">${scientists[lowest.id].keywords.slice(0,2).join('</span><span class="tag">')}</span>
+        等议题上与其核心直觉相距最远。需要提醒的是，任何测试都只能捕捉倾向，真实的思想往往比标签更复杂——例如达马西奥与瓦雷拉都重视身体，但前者偏向神经-演化说明，后者偏向生成论与现象学；丹尼特与巴尔斯都反对笛卡尔剧场，但前者更强调叙事竞争，后者更强调信息广播。
+      `;
+    }
+
+    function showResultDisagree(ranked, count) {
+      show('result-disagree');
+      document.getElementById('rdDisagreeCount').textContent = count;
+      renderProfile('rdProfile', ranked, ranked[0].id);
+      renderRunnerUps('rdRunnerUps', ranked, 0, 3);
+    }
+
+    function showResultDontKnow(ranked, count) {
+      show('result-dontknow');
+      document.getElementById('rkDontKnowCount').textContent = count;
+      renderProfile('rkProfile', ranked, ranked[0].id);
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+
+    function showAll() {
+      recordPosition();
+      show('all-scientists');
+      const list = document.getElementById('allList');
+      list.innerHTML = Object.values(scientists).map(s => `
+        <div style="margin-bottom:28px; padding-bottom:22px; border-bottom:1px solid var(--border);">
+          <h2 style="font-size:1.35rem; margin:0 0 6px; color:var(--accent);">${s.name}</h2>
+          <p style="margin:0 0 10px; color:var(--muted); font-size:0.98rem;">${s.tagline}</p>
+          <div class="keywords" style="margin-bottom:10px;">${s.keywords.map(k => `<span class="keyword">${k}</span>`).join('')}</div>
+          <p style="font-size:0.95rem; color:var(--muted); margin:0 0 10px;">${s.books}</p>
+          <p style="margin:0; font-size:1rem;">${s.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    function backToResult() {
+      recordPosition();
+      showResult();
+    }
+
+    buildToc();
+  </script>
+</body>
+</html>
