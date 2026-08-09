@@ -315,7 +315,24 @@
         <p>安东尼奥·达马西奥、托马斯·梅辛格、丹尼尔·丹尼特、克里斯托弗·科赫、伯纳德·巴尔斯、安迪·克拉克、瓦雷拉 / 汤普森 / 罗施。</p>
         <p>请注意：测试中出现的「引用观点」或「被批判观点」并不代表作者本人立场；计分映射已经尽量反映每位学者本人支持的理论取向。</p>
       </div>
-      <button class="btn btn-primary" onclick="startQuiz()">开始测试</button>
+      <button class="btn btn-primary" onclick="showTutorialIntro()">开始测试</button>
+    </section>
+
+    <!-- 前置提示页 -->
+    <section id="tutorial-intro" class="hidden fade">
+      <h1>准备好了吗？</h1>
+      <p class="subtitle">为避免此前对意识科学领域无了解的人被一大堆陌生的名词「初见杀」，所以接下来会提供一些专业名词的基础释义，之后才会进入到正式答题阶段。</p>
+      <div class="intro">
+        <p>这些释义不会计入分数，你可以把它们当作快速导读。即使某些概念一时没有完全消化，也可以选择「先继续看看」，正式题目中会用更日常化的方式呈现。</p>
+      </div>
+      <button class="btn btn-primary" onclick="startTutorial()">我理解了，开始吧</button>
+    </section>
+
+    <!-- 名词释义页 -->
+    <section id="tutorial" class="hidden">
+      <div class="question-number" id="tNumber"></div>
+      <h2 class="question-text" id="tText" style="font-size:1.2rem;"></h2>
+      <div id="tOptions"></div>
     </section>
 
     <!-- 答题页 -->
@@ -670,17 +687,91 @@
       }
     ];
 
+    // ===== 前置名词释义 =====
+    const tutorialQuestions = [
+      {
+        term: '全局工作空间',
+        text: '大脑中一个有限容量的信息交换平台。大量并行的无意识加工模块竞争进入这个空间，被注意选中的信息会被广播到全脑，从而成为意识内容。'
+      },
+      {
+        term: '神经相关物（NCC）',
+        text: '产生某种特定意识体验所需的最小神经机制。它关注的是「哪些神经活动对应着哪些主观体验」，是还原论意识研究的核心目标。'
+      },
+      {
+        term: '现象自我模型 / 自我隧道',
+        text: '大脑生成的一个透明的「自我」模型，让我们误以为内在有一个持续存在的「我」。梅辛格用「自我隧道」比喻：我们活在大脑构建的虚拟现实里，把隧道尽头的那个形象当成了真实的自己。'
+      },
+      {
+        term: '多重草稿',
+        text: '丹尼特提出的意识模型：大脑里同时进行着许多并行的信息加工（草稿），没有中央舞台，也没有内在观众；哪些草稿在竞争中胜出，哪些就成为当下的意识内容。'
+      },
+      {
+        term: '预测加工 / 预测误差',
+        text: '大脑不是被动接收感官信息，而是持续预测即将到来的输入。当预测与真实输入不一致时，就会产生「预测误差」，大脑据此更新模型，以减少未来的不确定性。'
+      },
+      {
+        term: '生成论（具身心智）',
+        text: '认知不是对预成世界的内部表征，而是行动者通过感知-运动活动「生成」一个有意义的世界。心智、身体与环境共同构成意义，反对把心智看作孤立的计算机器。'
+      },
+      {
+        term: '原我 / 核心自我 / 自传体自我',
+        text: '达马西奥对自我的三层划分：原我（proto-self）是对身体状态的原始映射；核心自我（core self）产生于有机体与客体的互动；自传体自我（autobiographical self）则把个人记忆、社会角色与文化身份整合进来。'
+      },
+      {
+        term: '感质（qualia）与难问题',
+        text: '「感质」指主观体验的现象特征，例如红色的「红ness」、疼痛的「痛ness」。「难问题」则问：为什么物理过程会伴随主观体验？不同学者对这个问题的态度截然不同。'
+      }
+    ];
+
     let current = 0;
+    let currentTutorial = 0;
     const scores = { damasio:0, metzinger:0, dennett:0, koch:0, baars:0, clark:0, varela:0 };
     // 每道题每位学者能获得的最高可能分（同一题内取最大值，再跨题累加）
     const maxPossible = { damasio:45, metzinger:43, dennett:41, koch:28, baars:37, clark:37, varela:32 };
     let selectedAnswers = []; // 记录每道题选择的选项 key
 
     function show(id) {
-      ['welcome','quiz','result','all-scientists'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      ['welcome','tutorial-intro','tutorial','quiz','result','all-scientists'].forEach(s => document.getElementById(s).classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
       document.getElementById(id).classList.add('fade');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showTutorialIntro() {
+      show('tutorial-intro');
+    }
+
+    function startTutorial() {
+      currentTutorial = 0;
+      show('tutorial');
+      renderTutorialQuestion();
+    }
+
+    function renderTutorialQuestion() {
+      const q = tutorialQuestions[currentTutorial];
+      document.getElementById('tNumber').textContent = `名词释义 ${currentTutorial + 1} / ${tutorialQuestions.length}`;
+      document.getElementById('tText').textContent = `Q：「${q.term}」是指${q.text}`;
+      const opts = document.getElementById('tOptions');
+      opts.innerHTML = '';
+      opts.appendChild(createOptionButton('A', '我理解了，继续吧', () => nextTutorial()));
+      opts.appendChild(createOptionButton('B', '我未理解，但先让我看看后面的', () => nextTutorial()));
+    }
+
+    function nextTutorial() {
+      currentTutorial++;
+      if (currentTutorial < tutorialQuestions.length) {
+        renderTutorialQuestion();
+      } else {
+        startQuiz();
+      }
+    }
+
+    function createOptionButton(label, text, onClick) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-option';
+      btn.innerHTML = `<span class="label">${label}</span><span>${text}</span>`;
+      btn.onclick = onClick;
+      return btn;
     }
 
     function startQuiz() {
