@@ -88,6 +88,28 @@
       line-height: 1.55;
     }
     .btn-option:hover { background: var(--accent-light); border-color: var(--accent); }
+    .btn-option.selected { background: var(--accent-light); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+    .btn-option.selected .label { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .quiz-nav .btn { flex: 1; }
+    .quiz-nav .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .hint {
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+      min-height: 1.5em;
+    }
     .btn-option .label {
       display: inline-flex;
       align-items: center;
@@ -302,6 +324,11 @@
       <div class="question-number" id="qNumber"></div>
       <h2 class="question-text" id="qText"></h2>
       <div id="options"></div>
+      <div class="quiz-nav">
+        <button class="btn btn-secondary" id="prevBtn" onclick="goPrev()">← 上一题</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="goNext()">下一题 →</button>
+      </div>
+      <p class="hint" id="quizHint">请选择一项后点击「下一题」</p>
     </section>
 
     <!-- 结果页 -->
@@ -647,6 +674,7 @@
     const scores = { damasio:0, metzinger:0, dennett:0, koch:0, baars:0, clark:0, varela:0 };
     // 每道题每位学者能获得的最高可能分（同一题内取最大值，再跨题累加）
     const maxPossible = { damasio:45, metzinger:43, dennett:41, koch:28, baars:37, clark:37, varela:32 };
+    let selectedAnswers = []; // 记录每道题选择的选项 key
 
     function show(id) {
       ['welcome','quiz','result','all-scientists'].forEach(s => document.getElementById(s).classList.add('hidden'));
@@ -657,6 +685,7 @@
 
     function startQuiz() {
       current = 0;
+      selectedAnswers = new Array(questions.length).fill(null);
       for (const k in scores) scores[k] = 0;
       show('quiz');
       renderQuestion();
@@ -669,26 +698,59 @@
       document.getElementById('qText').textContent = q.text;
       const opts = document.getElementById('options');
       opts.innerHTML = '';
+      const selected = selectedAnswers[current];
       optionLabels.forEach((key, idx) => {
         const opt = q[key];
         if (!opt) return;
         const btn = document.createElement('button');
-        btn.className = 'btn btn-option';
+        btn.className = 'btn btn-option' + (selected === key ? ' selected' : '');
         btn.innerHTML = `<span class="label">${key}</span><span>${opt.text}</span>`;
-        btn.onclick = () => answer(key);
+        btn.onclick = () => selectOption(key);
         opts.appendChild(btn);
       });
+
+      // 更新导航按钮状态
+      document.getElementById('prevBtn').disabled = current === 0;
+      const nextBtn = document.getElementById('nextBtn');
+      const hasAnswer = selected !== null;
+      nextBtn.textContent = current === questions.length - 1 ? '查看结果' : '下一题 →';
+      nextBtn.disabled = !hasAnswer;
+
+      const hint = document.getElementById('quizHint');
+      hint.textContent = hasAnswer
+        ? '已选择，可点击「下一题」继续，或点击「上一题」返回修改'
+        : '请选择一项后点击「下一题」';
     }
 
-    function answer(key) {
+    function selectOption(key) {
       const q = questions[current];
+      // 如果已有选择，先撤销旧分数
+      const oldKey = selectedAnswers[current];
+      if (oldKey && q[oldKey]) {
+        const oldDelta = q[oldKey].scores;
+        for (const k in oldDelta) scores[k] -= oldDelta[k];
+      }
+      // 应用新选择分数
       const delta = q[key].scores;
       for (const k in delta) scores[k] += delta[k];
+      selectedAnswers[current] = key;
+      renderQuestion();
+    }
+
+    function goNext() {
+      if (selectedAnswers[current] === null) return;
       current++;
       if (current < questions.length) {
         renderQuestion();
       } else {
         showResult();
+      }
+    }
+
+    function goPrev() {
+      if (current > 0) {
+        current--;
+        renderQuestion();
       }
     }
 
