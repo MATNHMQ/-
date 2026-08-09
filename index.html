@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>你更像哪位意识科学家？</title>
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --surface: #ffffff;
+      --text: #2a2a2a;
+      --muted: #6b6b6b;
+      --accent: #4a6fa5;
+      --accent-light: #e8eef7;
+      --border: #ddd8cc;
+      --shadow: 0 10px 40px rgba(0,0,0,0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--surface);
+      max-width: 760px;
+      width: 100%;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 600px) {
+      .card { padding: 32px 24px; }
+    }
+    h1 {
+      font-size: 2.1rem;
+      margin: 0 0 12px;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 28px;
+    }
+    .intro p {
+      margin: 0 0 16px;
+      font-size: 1.05rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(74,111,165,0.28);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(74,111,165,0.35); }
+    .btn-option {
+      width: 100%;
+      text-align: left;
+      justify-content: flex-start;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 14px;
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+    .btn-option:hover { background: var(--accent-light); border-color: var(--accent); }
+    .btn-option .label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-weight: 700;
+      margin-right: 14px;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+    .progress {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width .35s ease;
+    }
+    .question-number {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .question-text {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0 0 28px;
+      line-height: 1.45;
+    }
+    .fade { animation: fadeIn .45s ease both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .hidden { display: none; }
+    .result-name {
+      font-size: 2.2rem;
+      margin: 0 0 6px;
+      color: var(--accent);
+    }
+    .result-tagline {
+      font-size: 1.15rem;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+    .match-badge {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 24px 0 10px;
+      color: var(--text);
+    }
+    .keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .keyword {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 13px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .description {
+      font-size: 1.05rem;
+      margin-bottom: 18px;
+    }
+    .runner-ups {
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-top: 26px;
+    }
+    .runner-ups ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+    .runner-ups li { margin-bottom: 6px; }
+    .actions { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+    .btn-secondary:hover { background: var(--accent-light); }
+    .note {
+      margin-top: 24px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+    .book-list {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    /* 新增：意识形态剖面 */
+    .profile-box {
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-top: 26px;
+    }
+    .profile-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .profile-bar:last-child { margin-bottom: 0; }
+    .profile-label {
+      width: 110px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-track {
+      flex: 1;
+      height: 10px;
+      background: var(--surface);
+      border-radius: 5px;
+      margin: 0 12px;
+      overflow: hidden;
+    }
+    .profile-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 5px;
+      transition: width .6s ease;
+      opacity: .85;
+    }
+    .profile-fill.highlight { opacity: 1; background: #3a5a85; }
+    .profile-pct {
+      width: 44px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .reading-path {
+      background: var(--accent-light);
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-top: 22px;
+    }
+    .reading-path ol {
+      margin: 10px 0 0;
+      padding-left: 20px;
+      color: var(--text);
+    }
+    .reading-path li { margin-bottom: 8px; }
+    .tension-box {
+      margin-top: 22px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .tag {
+      display: inline-block;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <!-- 欢迎页 -->
+    <section id="welcome" class="fade">
+      <h1>你更像哪位意识科学家？</h1>
+      <p class="subtitle">从达马西奥的身体自我，到丹尼特的多重草稿，再到梅辛格的自我隧道……意识研究有截然不同的路径。回答 25 个问题，看看你的直觉最接近哪一位（或哪一派）思想家。</p>
+      <div class="intro">
+        <p>本测试基于七位意识研究领域代表人物的核心立场设计：</p>
+        <p>安东尼奥·达马西奥、托马斯·梅辛格、丹尼尔·丹尼特、克里斯托弗·科赫、伯纳德·巴尔斯、安迪·克拉克、瓦雷拉 / 汤普森 / 罗施。</p>
+        <p>请注意：测试中出现的「引用观点」或「被批判观点」并不代表作者本人立场；计分映射已经尽量反映每位学者本人支持的理论取向。</p>
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()">开始测试</button>
+    </section>
+
+    <!-- 答题页 -->
+    <section id="quiz" class="hidden">
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="question-number" id="qNumber"></div>
+      <h2 class="question-text" id="qText"></h2>
+      <div id="options"></div>
+    </section>
+
+    <!-- 结果页 -->
+    <section id="result" class="hidden fade">
+      <div class="question-number">你的测试结果</div>
+      <h2 class="result-name" id="rName"></h2>
+      <p class="result-tagline" id="rTagline"></p>
+      <div class="match-badge" id="rMatch"></div>
+      <div class="keywords" id="rKeywords"></div>
+      <div class="book-list" id="rBooks"></div>
+      <div class="description" id="rDesc"></div>
+
+      <div class="section-title">代表人物立场</div>
+      <div class="description" id="rStance"></div>
+
+      <div class="profile-box">
+        <div class="section-title" style="margin-top:0">意识形态剖面（与七位学者的匹配度）</div>
+        <div id="rProfile"></div>
+      </div>
+
+      <div class="reading-path">
+        <div class="section-title" style="margin-top:0">推荐阅读路径</div>
+        <div class="description" style="font-size:0.98rem; margin-bottom:8px;" id="rReadingIntro"></div>
+        <ol id="rReadingList"></ol>
+      </div>
+
+      <div class="runner-ups">
+        <div class="section-title">次要相似学者</div>
+        <ul id="rRunnerUps"></ul>
+      </div>
+
+      <div class="tension-box">
+        <div class="section-title">分歧与提醒</div>
+        <p id="rTension"></p>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="restartQuiz()">再测一次</button>
+        <button class="btn btn-secondary" onclick="showAll()">查看全部学者</button>
+      </div>
+      <p class="note">免责声明：本测试仅供学习与娱乐，无法替代对原著的深入阅读。每位学者的思想都在不断发展，此处呈现的是其在该资料中表达的核心取向。</p>
+    </section>
+
+    <!-- 全部学者页 -->
+    <section id="all-scientists" class="hidden fade">
+      <h1>七位意识科学家速览</h1>
+      <p class="subtitle">点击「返回结果」可回到你的测试结果。</p>
+      <div id="allList"></div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="backToResult()">返回结果</button>
+        <button class="btn btn-primary" onclick="restartQuiz()">重新测试</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ===== 学者数据 =====
+    const scientists = {
+      damasio: {
+        id: 'damasio',
+        name: '安东尼奥·达马西奥（Antonio Damasio）',
+        tagline: '身体是意识的根基，自我是一种动态加工。',
+        keywords: ['原我', '核心自我', '自传体自我', '躯体标记', '原始感受', '内稳态'],
+        books: '代表资料：《当自我来敲门》《感受发生的一切》《笛卡尔的错误》',
+        desc: '达马西奥认为，有意识心智的诞生离不开「自我加工」。这种自我不是固定实体，而是从原我（proto-self）经核心自我到自传体自我的动态演化过程。身体状态通过脑干映射形成「原始感受」，情绪与感受参与价值评估和决策。意识是生命内稳态调控在演化中的延伸，反对笛卡尔式的心身二元论，也反对用量子力学等神秘物解释意识。',
+        stance: '本人观点：意识是具有主体性的心智，自我加工不可或缺；躯体是有意识心智的基础；原始感受起源于脑干；意识是多脑区协作的涌现结果。',
+        reading: [
+          '入门：《笛卡尔的错误》——情绪、理性与身体的关系',
+          '深入：《感受发生的一切》——意识如何通过身体与情绪生成',
+          '进阶：《当自我来敲门》——从原我到自传体自我的分层建构'
+        ]
+      },
+      metzinger: {
+        id: 'metzinger',
+        name: '托马斯·梅辛格（Thomas Metzinger）',
+        tagline: '没有实体自我，只有「现象自我模型」。',
+        keywords: ['现象自我模型', '自我隧道', '透明性', '最小现象自我', '离体体验', '自由意志幻觉'],
+        books: '代表资料：《自我隧道》《Being No One》',
+        desc: '梅辛格主张，并不存在一个内在持存的「自我实体」，大脑只生成了一个透明的「现象自我模型」（PSM）。我们生活在一个由大脑构建的「自我隧道」中，误以为隧道尽头的那个「我」是真实的。离体体验、橡胶手错觉等表明自我可以与身体解耦；自由意志与认知能动性在深层上是一种幻觉。意识研究必须认真对待第一人称体验。',
+        stance: '本人观点：主体性源于透明的自我模型；最小现象自我包括自我定位、自我认同与第一人称视角；意识是大脑生成的世界模拟；自我可在实验中解耦。',
+        reading: [
+          '入门：《自我隧道》——自我模型、透明性与意识的伦理问题',
+          '深入：《Being No One》——自我模型理论的系统论证',
+          '延伸：梅辛格关于「认知能动性幻觉」与「机器人伦理」的论文'
+        ]
+      },
+      dennett: {
+        id: 'dennett',
+        name: '丹尼尔·丹尼特（Daniel C. Dennett）',
+        tagline: '意识是多重草稿的胜出者，自我是叙事重心。',
+        keywords: ['意向立场', '多重草稿模型', '叙事重心', '反对笛卡尔剧场', '异己现象学', '功能主义'],
+        books: '代表资料：《心灵种种》《意识的解释》《意向立场》',
+        desc: '丹尼特反对大脑中存在一个「中央舞台」或「内在小人」。意识是并行加工的多重草稿相互竞争的结果，获胜的草稿成为当下经验；自我则是随时间编织出来的「叙事重心」。他主张用「异己现象学」从第三人称研究意识，拒斥不可还原的「感质」（qualia）。心灵是进化的产物，不同复杂度的系统拥有不同「种类的心灵」。',
+        stance: '本人观点：意识没有神秘本质；自我不是内部实体；意向立场是解释行为的真实模式；功能主义与计算主义是理解心智的合适框架。',
+        reading: [
+          '入门：《心灵种种》——从细菌到人类的多种心智',
+          '深入：《意识的解释》——多重草稿模型与笛卡尔剧场的批判',
+          '进阶：《意向立场》——意向性、自由意志与演化论视角'
+        ]
+      },
+      koch: {
+        id: 'koch',
+        name: '克里斯托弗·科赫（Christof Koch）',
+        tagline: '寻找意识的神经相关物，坚持还原论路径。',
+        keywords: ['神经相关物 NCC', '还原论', '后皮质热点', '整合信息论 IIT', '意识广泛分布'],
+        books: '代表资料：《意识与脑：一个还原论者的浪漫自白》',
+        desc: '科赫与克里克共同推进了「意识的神经相关物」（NCC）研究计划：找到产生任何特定意识知觉的最小神经机制。他认为意识是可用神经科学逐步还原的生物现象，并强调不能把意识等同于所有脑活动。后期他大力支持朱利奥·托诺尼的整合信息论（IIT），认为意识对应系统的信息整合能力（Φ），因此可能广泛存在于动物中，但计算机模拟因缺乏正确因果结构而不会拥有意识。',
+        stance: '本人观点：意识可被还原为神经机制；NCC 是意识科学的核心目标；意识与特定神经结构/信息整合能力相关，而非单纯的计算模拟。',
+        reading: [
+          '入门：《意识与脑：一个还原论者的浪漫自白》——NCC 研究计划与克里克的合作',
+          '深入：Giulio Tononi《Phi》——整合信息论（IIT）的诗意与科学',
+          '进阶：科赫关于意识广泛分布与 AI 意识的最新论文与访谈'
+        ]
+      },
+      baars: {
+        id: 'baars',
+        name: '伯纳德·巴尔斯（Bernard J. Baars）',
+        tagline: '意识是进入全局工作空间并被广播的信息。',
+        keywords: ['全局工作空间理论', '无意识模块', '注意力聚光灯', '信息广播', '可及性'],
+        books: '代表资料：《意识的认知理论》《In the Theater of Consciousness》',
+        desc: '巴尔斯提出全局工作空间理论（GWT）：大脑由大量并行运作的无意识专门模块组成，它们竞争进入有限容量的「全局工作空间」。被注意力选中并广播到全脑的信息，才成为意识内容。该理论用「剧院隐喻」帮助理解：舞台是意识内容，聚光灯是注意，观众/后台是无意识加工。GWT 强调意识的功能在于整合分散信息以支持复杂行为。',
+        stance: '本人观点：意识即信息的全局可及性与广播；注意力决定哪些内容进入意识；大多数认知加工是无意识的。',
+        reading: [
+          '入门：《意识的认知理论》（A Cognitive Theory of Consciousness）',
+          '深入：《In the Theater of Consciousness》——剧院隐喻与全局广播',
+          '进阶：Stanislas Dehaene 关于「全局神经元工作空间」的实验研究'
+        ]
+      },
+      clark: {
+        id: 'clark',
+        name: '安迪·克拉克（Andy Clark）',
+        tagline: '大脑是预测机器，心智深嵌于身体与世界。',
+        keywords: ['预测加工', '自由能原理', '预测误差', '主动推断', '具身认知', '延展心智'],
+        books: '代表资料：《预测算法：具身智能如何应对不确定性》',
+        desc: '克拉克倡导预测加工与自由能原理：大脑不是被动接收感觉输入，而是持续生成关于世界的预测，并通过最小化「预测误差」来更新模型。感知与行动是同一过程的两面——行动是为了改变感觉输入以减少预测误差（主动推断）。心智不是仅发生在大脑内部，而是深嵌于身体并与环境耦合。',
+        stance: '本人观点：大脑是层级化的预测机器；感知是自上而下预测与自下而上误差的结合；认知是具身、嵌入并延展的。',
+        reading: [
+          '入门：《预测算法：具身智能如何应对不确定性》（Surfing Uncertainty）',
+          '深入：Karl Friston 自由能原理相关论文与主动推断框架',
+          '进阶：克拉克关于延展心智与预测加工的跨学科论文'
+        ]
+      },
+      varela: {
+        id: 'varela',
+        name: '瓦雷拉 / 汤普森 / 罗施（Varela / Thompson / Rosch）',
+        tagline: '认知不是表征世界，而是在行动中生成世界。',
+        keywords: ['生成论', '具身心智', '自创生', '结构耦合', '知觉引导行动', '现象学'],
+        books: '代表资料：《具身心智：认知科学和人类经验》',
+        desc: '《具身心智》提出「生成论」（enactivism）：认知不是对预成世界的内部表征，而是行动者通过感知-运动活动「生成」一个世界和心智。身体具有特定的感知-运动能力，这些能力嵌入生物、心理和文化情境中。作者融合梅洛-庞蒂现象学、胡塞尔现象学与佛教中观思想，强调第一人称经验，并发展出「神经现象学」方法。',
+        stance: '本人观点：反对计算-表征主义；认知是知觉引导的行动；生命系统通过自创生和结构耦合与环境共同构成意义。',
+        reading: [
+          '入门：《具身心智：认知科学和人类经验》（The Embodied Mind）',
+          '深入：Evan Thompson《Mind in Life》——生命与心智的连续性',
+          '进阶：神经现象学（neurophenomenology）方法论文与禅修认知科学'
+        ]
+      }
+    };
+
+    const optionLabels = ['A','B','C','D','E','F'];
+
+    // ===== 测试题：每题四个选项，每个选项给对应学者加分 =====
+    const questions = [
+      {
+        text: '如果要把意识比喻成一个系统，它更像：',
+        A: { text: '一场由多个演奏者共同完成的交响乐——没有单独指挥，但涌现出一个整体', scores: { damasio: 2, baars: 1, varela: 1 } },
+        B: { text: '一部多重草稿同时在编辑的叙事——没有中央舞台，只有胜出的草稿成为意识', scores: { dennett: 2, metzinger: 1 } },
+        C: { text: '一个中央剧院舞台——演员上台表演，聚光灯照亮的内容被全场观众看见', scores: { baars: 2, koch: 1 } },
+        D: { text: '一台不断预测世界的层级化机器——通过最小化预测误差来感知和行动', scores: { clark: 2, varela: 1 } }
+      },
+      {
+        text: '意识体验最根本的来源是：',
+        A: { text: '身体内部状态的内稳态调节、情绪与感受', scores: { damasio: 2, varela: 1 } },
+        B: { text: '大脑对感官输入的持续预测与预测误差最小化', scores: { clark: 2, koch: 1 } },
+        C: { text: '信息进入全局工作空间并被广播到全脑', scores: { baars: 2 } },
+        D: { text: '多重草稿竞争中胜出的叙事内容', scores: { dennett: 2, metzinger: 1 } }
+      },
+      {
+        text: '关于「自我」，你最认同：',
+        A: { text: '自我是大脑构建的一个现象模型 / 虚拟现实，我们生活在「自我隧道」里', scores: { metzinger: 2, dennett: 1 } },
+        B: { text: '自我是生命体在演化中形成的动态加工，从原我到核心自我再到自传体自我', scores: { damasio: 2, varela: 1 } },
+        C: { text: '自我是叙事重心，是随时间编织出来的故事', scores: { dennett: 2 } },
+        D: { text: '自我是通过行动与环境共同生成的，不是预先存在的实体', scores: { varela: 2, clark: 1 } }
+      },
+      {
+        text: '在研究意识时，你认为最优先的是：',
+        A: { text: '寻找意识的神经相关物（NCC），把意识还原为神经机制', scores: { koch: 2, baars: 1 } },
+        B: { text: '认真对待第一人称体验与现象学，意识不是纯客观对象', scores: { metzinger: 2, damasio: 1, varela: 1 } },
+        C: { text: '构建可计算的全局工作空间模型和人工智能意识', scores: { baars: 2, dennett: 1 } },
+        D: { text: '理解大脑作为预测机器如何与身体和世界互动', scores: { clark: 2 } }
+      },
+      {
+        text: '知觉的本质更接近：',
+        A: { text: '大脑建构对外部世界的内部表征或模型', scores: { koch: 1, baars: 1, metzinger: 1 } },
+        B: { text: '行动者与环境互动生成的结果，没有预成的「外部世界」等待被表征', scores: { varela: 2, clark: 1 } },
+        C: { text: '大脑对世界原因的层级化概率推断', scores: { clark: 2, koch: 1 } },
+        D: { text: '感觉信息经过选择性注意进入意识舞台的过程', scores: { baars: 2 } }
+      },
+      {
+        text: '关于自由意志，你更倾向：',
+        A: { text: '自由是复杂系统中「值得想要的」一种能力，不是神秘魔力', scores: { dennett: 2, clark: 1, baars: 1 } },
+        B: { text: '它在深层上受生物内稳态与神经机制约束，某种程度是一种建构或幻觉', scores: { metzinger: 2, damasio: 1 } },
+        C: { text: '自由意志体验是自我模型的一部分，但不是因果上根本的自由', scores: { metzinger: 2, dennett: 1 } },
+        D: { text: '自由体现在行动者通过主动推断塑造感知-运动循环的能力', scores: { clark: 2, varela: 1 } }
+      },
+      {
+        text: '意识与无意识加工的关系是：',
+        A: { text: '意识只是全局工作空间中少数被广播的信息，多数加工是无意识的', scores: { baars: 2, dennett: 1, koch: 1 } },
+        B: { text: '意识与无意识的边界是流动的，意识从身体-大脑连续体中涌现', scores: { damasio: 2, varela: 1, clark: 1 } },
+        C: { text: '意识是多重草稿中暂时胜出的部分，多数草稿处于无意识中', scores: { dennett: 2, baars: 1 } },
+        D: { text: '无意识加工是自我模型自动运行的结果，意识是其透明化的产物', scores: { metzinger: 2 } }
+      },
+      {
+        text: '主观体验（如红色的「红ness」、疼痛的「痛ness」）是：',
+        A: { text: '真实的现象特征，是意识科学必须解释的核心 explanandum', scores: { metzinger: 2, damasio: 1, koch: 1 } },
+        B: { text: '可以在信息加工 / 功能角色中被解释或消解，不必设定神秘本质', scores: { dennett: 2, baars: 1, clark: 1 } },
+        C: { text: '是身体状态映射产生的感受变调，与内稳态价值相连', scores: { damasio: 2, varela: 1 } },
+        D: { text: '对应特定神经模式或信息整合结构的可还原现象', scores: { koch: 2, baars: 1 } }
+      },
+      {
+        text: '身体在心智和意识中的地位是：',
+        A: { text: '身体是心智的根基，认知与意识都深嵌于身体之中', scores: { damasio: 2, varela: 2, clark: 1 } },
+        B: { text: '心智本质上是信息处理，身体主要提供输入与行为输出', scores: { dennett: 1, baars: 1, koch: 2 } },
+        C: { text: '身体是预测机器的组成部分，通过行动塑造感知输入', scores: { clark: 2, varela: 1 } },
+        D: { text: '身体自我模型可以被实验操纵，说明自我与身体是分离的', scores: { metzinger: 2, dennett: 1 } }
+      },
+      {
+        text: '动物是否能拥有意识？',
+        A: { text: '许多动物拥有某种形式的意识和自我，尤其是哺乳动物和鸟类', scores: { damasio: 2, varela: 1 } },
+        B: { text: '意识取决于特定的信息整合 / 神经结构，不能简单推广', scores: { koch: 2, metzinger: 1 } },
+        C: { text: '任何能进行感知-运动循环和自我生成的生命系统都可能拥有某种意识', scores: { varela: 2, damasio: 1 } },
+        D: { text: '只有具备复杂全局工作空间或叙事能力的系统才可能拥有意识', scores: { baars: 2, dennett: 1 } }
+      },
+      {
+        text: '意识的演化功能更可能是：',
+        A: { text: '更高效的生命调控与价值管理', scores: { damasio: 2, clark: 1 } },
+        B: { text: '整合分散信息，使全局可及以支持复杂决策与语言', scores: { baars: 2, dennett: 1, koch: 1 } },
+        C: { text: '帮助有机体通过预测和行动减少不确定性', scores: { clark: 2, varela: 1 } },
+        D: { text: '让自我模型能够监控和调节有机体与环境的关系', scores: { metzinger: 2, damasio: 1 } }
+      },
+      {
+        text: '面对「为什么物理过程会有主观体验」这个难问题，你更倾向：',
+        A: { text: '通过持续神经科学研究，难问题会逐步消解', scores: { koch: 2, baars: 1, dennett: 1 } },
+        B: { text: '需要重新思考主体性、身体和世界的关系，甚至接受某种不可还原性', scores: { metzinger: 2, damasio: 1, varela: 1 } },
+        C: { text: '难问题是错误的问题，感质概念本身是误导性的', scores: { dennett: 2 } },
+        D: { text: '意识与生命的自我生成、意义生成不可分离', scores: { varela: 2, damasio: 1 } }
+      },
+      {
+        text: '情绪与理性的关系更接近：',
+        A: { text: '情绪通过躯体标记参与决策，理性离不开情绪和感受', scores: { damasio: 2 } },
+        B: { text: '情绪和感受是自我模型中的信息状态，可被功能分析', scores: { metzinger: 1, dennett: 1 } },
+        C: { text: '情绪和预测误差、精确度调控相关，指导行动选择', scores: { clark: 2, damasio: 1 } },
+        D: { text: '情绪是全局广播的重要信号，协调认知资源', scores: { baars: 2 } }
+      },
+      {
+        text: '你如何看待梦境、离体体验等异常意识状态？',
+        A: { text: '它们揭示了自我模型与身体可以解耦，自我是建构的', scores: { metzinger: 2, dennett: 1 } },
+        B: { text: '它们是大脑预测机制在离线状态下的运行', scores: { clark: 2, baars: 1 } },
+        C: { text: '它们说明意识根植于身体，但身体的边界可以被重新映射', scores: { damasio: 1, varela: 1 } },
+        D: { text: '它们主要对应神经相关物的特殊激活模式，可用于研究意识机制', scores: { koch: 2 } }
+      },
+      {
+        text: '人工智能是否可能拥有意识？',
+        A: { text: '只有具备正确因果结构和信息整合能力的系统才可能', scores: { koch: 2, metzinger: 1 } },
+        B: { text: '如果AI拥有全局工作空间和广播机制，原则上可能', scores: { baars: 2, dennett: 1 } },
+        C: { text: 'AI可以模拟功能但没有生命/身体/内稳态，因此不可能真正有意识', scores: { damasio: 2, varela: 1 } },
+        D: { text: '关键在于是否具身嵌入世界并通过行动生成意义', scores: { varela: 2, clark: 1 } }
+      },
+      {
+        text: '意识研究最适合的方法论是：',
+        A: { text: '第三人称神经科学与第一人称现象学相结合', scores: { metzinger: 2, damasio: 1, varela: 1 } },
+        B: { text: '以行为、脑活动和第三人称异己现象学为主', scores: { dennett: 2, koch: 1 } },
+        C: { text: '构建计算模型和全局工作空间模拟', scores: { baars: 2, clark: 1 } },
+        D: { text: '神经现象学：将现象学训练与神经科学实验结合', scores: { varela: 2, damasio: 1 } }
+      },
+      {
+        text: '语言与意识的关系是：',
+        A: { text: '语言是全局广播的重要媒介，扩展了意识内容', scores: { baars: 2, dennett: 1 } },
+        B: { text: '语言是叙事自我的基础，但不是意识本身的前提', scores: { damasio: 2, metzinger: 1 } },
+        C: { text: '语言是认知工具，可以延展心智，但不是意识的边界', scores: { clark: 2, dennett: 1 } },
+        D: { text: '语言是社会文化内稳态的产物，服务于价值管理', scores: { damasio: 1, varela: 1 } }
+      },
+      {
+        text: '你如何看待「心身关系」？',
+        A: { text: '心身是一元的连续体，意识是生物组织的复杂形式', scores: { damasio: 2, varela: 1 } },
+        B: { text: '心身问题可以通过信息加工 / 功能主义得到解释', scores: { dennett: 2, baars: 1, koch: 1 } },
+        C: { text: '意识是大脑生成的世界模拟，身体是模型的一部分', scores: { metzinger: 2, clark: 1 } },
+        D: { text: '认知是大脑-身体-环境耦合的系统属性', scores: { clark: 2, varela: 2 } }
+      },
+      {
+        text: '意识的内容是如何被选择的？',
+        A: { text: '通过注意竞争进入有限容量的全局工作空间', scores: { baars: 2, koch: 1 } },
+        B: { text: '通过多重草稿的并行竞争和胜利', scores: { dennett: 2, baars: 1 } },
+        C: { text: '通过预测误差和精确度权重的调控', scores: { clark: 2 } },
+        D: { text: '通过情绪 / 价值标记对表象进行剪辑和凸显', scores: { damasio: 2, varela: 1 } }
+      },
+      {
+        text: '记忆在意识中的作用是：',
+        A: { text: '记忆是构建自传体自我的基础', scores: { damasio: 2, metzinger: 1 } },
+        B: { text: '记忆为预测模型提供先验，减少不确定性', scores: { clark: 2, baars: 1 } },
+        C: { text: '记忆是全局工作空间可调用的一种无意识资源', scores: { baars: 2, dennett: 1 } },
+        D: { text: '记忆嵌入身体-环境的交互历史中，不是独立存储的表征', scores: { varela: 2, clark: 1 } }
+      },
+      {
+        text: '社会互动对自我 / 意识的影响是：',
+        A: { text: '社会互动塑造了自传体自我和社会文化内稳态', scores: { damasio: 2, varela: 1 } },
+        B: { text: '社会认知通过镜像神经元和共享自我模型实现', scores: { metzinger: 2, damasio: 1 } },
+        C: { text: '社会互动是认知延展的一部分，通过语言和文化工具实现', scores: { clark: 2, dennett: 1 } },
+        D: { text: '社会信息通过全局工作空间广播，协调群体行为', scores: { baars: 1 } }
+      },
+      {
+        text: '时间意识（意识流）如何理解？',
+        A: { text: '意识流是核心自我脉冲的连续序列，与当下感受相连', scores: { damasio: 2 } },
+        B: { text: '意识流是多重草稿不断改写的时间性叙事', scores: { dennett: 2, metzinger: 1 } },
+        C: { text: '意识流是预测模型在时间上的展开和更新', scores: { clark: 2, baars: 1 } },
+        D: { text: '意识流是现象自我模型持续生成的时间窗口', scores: { metzinger: 2, baars: 1 } }
+      },
+      {
+        text: '你如何理解「痛苦」？',
+        A: { text: '痛苦是身体状态偏离内稳态的映射与感受', scores: { damasio: 2, varela: 1 } },
+        B: { text: '痛苦是自我模型中负面的现象状态，具有重要的伦理意义', scores: { metzinger: 2 } },
+        C: { text: '痛苦是大脑对组织损伤的预测 / 推断，可被重塑', scores: { clark: 2, dennett: 1 } },
+        D: { text: '痛苦对应特定的神经相关物，可用于定位意识机制', scores: { koch: 2 } }
+      },
+      {
+        text: '科学解释意识的最终目标是：',
+        A: { text: '找到意识的神经相关物，建立脑-意识对应表', scores: { koch: 2, baars: 1 } },
+        B: { text: '解释大脑如何生成现象自我模型和主观体验', scores: { metzinger: 2, koch: 1 } },
+        C: { text: '用演化和功能解释意识在自然中的位置', scores: { dennett: 2, damasio: 1 } },
+        D: { text: '理解生命-心智-意义的连续生成过程', scores: { varela: 2, damasio: 1 } }
+      },
+      {
+        text: '如果必须选择一句话概括你的意识观，你会说：',
+        A: { text: '「意识是生命调控的延伸，自我是身体-大脑动态加工的过程。」', scores: { damasio: 3 } },
+        B: { text: '「意识是透明的现象自我模型，自我是大脑的虚拟现实。」', scores: { metzinger: 3 } },
+        C: { text: '「意识是多重草稿的胜出，自我是叙事重心。」', scores: { dennett: 3 } },
+        D: { text: '「意识是进入全局工作空间并被广播的信息。」', scores: { baars: 3 } },
+        E: { text: '「意识是对世界和自我的预测，行动即认知。」', scores: { clark: 2, varela: 1 } },
+        F: { text: '「意识是神经相关物所对应的生物信息整合现象。」', scores: { koch: 3 } }
+      }
+    ];
+
+    let current = 0;
+    const scores = { damasio:0, metzinger:0, dennett:0, koch:0, baars:0, clark:0, varela:0 };
+    // 每道题每位学者能获得的最高可能分（同一题内取最大值，再跨题累加）
+    const maxPossible = { damasio:45, metzinger:43, dennett:41, koch:28, baars:37, clark:37, varela:32 };
+
+    function show(id) {
+      ['welcome','quiz','result','all-scientists'].forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(id).classList.add('fade');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function startQuiz() {
+      current = 0;
+      for (const k in scores) scores[k] = 0;
+      show('quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[current];
+      document.getElementById('progressBar').style.width = ((current / questions.length) * 100) + '%';
+      document.getElementById('qNumber').textContent = `问题 ${current + 1} / ${questions.length}`;
+      document.getElementById('qText').textContent = q.text;
+      const opts = document.getElementById('options');
+      opts.innerHTML = '';
+      optionLabels.forEach((key, idx) => {
+        const opt = q[key];
+        if (!opt) return;
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-option';
+        btn.innerHTML = `<span class="label">${key}</span><span>${opt.text}</span>`;
+        btn.onclick = () => answer(key);
+        opts.appendChild(btn);
+      });
+    }
+
+    function answer(key) {
+      const q = questions[current];
+      const delta = q[key].scores;
+      for (const k in delta) scores[k] += delta[k];
+      current++;
+      if (current < questions.length) {
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      show('result');
+      // 计算匹配度 = 得分 / 该学者理论最高分
+      const ranked = Object.keys(scientists).map(id => {
+        return { id, score: scores[id], pct: Math.round((scores[id] / maxPossible[id]) * 100) };
+      }).sort((a,b) => b.pct - a.pct);
+
+      const top = ranked[0];
+      const s = scientists[top.id];
+      document.getElementById('rName').textContent = s.name;
+      document.getElementById('rTagline').textContent = s.tagline;
+      document.getElementById('rMatch').textContent = `匹配度 ${top.pct}%`;
+      document.getElementById('rKeywords').innerHTML = s.keywords.map(k => `<span class="keyword">${k}</span>`).join('');
+      document.getElementById('rBooks').textContent = s.books;
+      document.getElementById('rDesc').textContent = s.desc;
+      document.getElementById('rStance').textContent = s.stance;
+
+      // 意识形态剖面条形图
+      const profileEl = document.getElementById('rProfile');
+      profileEl.innerHTML = ranked.map(r => {
+        const rs = scientists[r.id];
+        const shortName = rs.name.split('（')[0].replace(/瓦雷拉 \/ 汤普森 \/ 罗施/, '瓦雷拉/汤普森/罗施');
+        const highlight = r.id === top.id ? ' highlight' : '';
+        return `
+          <div class="profile-bar">
+            <div class="profile-label" title="${rs.name}">${shortName}</div>
+            <div class="profile-track"><div class="profile-fill${highlight}" style="width:${r.pct}%"></div></div>
+            <div class="profile-pct">${r.pct}%</div>
+          </div>
+        `;
+      }).join('');
+
+      // 推荐阅读路径
+      document.getElementById('rReadingIntro').textContent = `你的意识观最接近 ${s.name.split('（')[0]}，以下是为这种取向量身推荐的阅读路径：`;
+      document.getElementById('rReadingList').innerHTML = s.reading.map(item => `<li>${item}</li>`).join('');
+
+      // 次要相似学者
+      const runnerUps = ranked.slice(1, 4);
+      document.getElementById('rRunnerUps').innerHTML = runnerUps.map(r => {
+        const rs = scientists[r.id];
+        return `<li><strong>${rs.name.split('（')[0]}</strong> — ${rs.tagline}（匹配度 ${r.pct}%）</li>`;
+      }).join('');
+
+      // 分歧与提醒
+      const lowest = ranked[ranked.length - 1];
+      const lowestName = scientists[lowest.id].name.split('（')[0];
+      document.getElementById('rTension').innerHTML = `
+        你与 <strong>${lowestName}</strong> 的匹配度最低（${lowest.pct}%），这意味着你在
+        <span class="tag">${scientists[lowest.id].keywords.slice(0,2).join('</span><span class="tag">')}</span>
+        等议题上与其核心直觉相距最远。需要提醒的是，任何测试都只能捕捉倾向，真实的思想往往比标签更复杂——例如达马西奥与瓦雷拉都重视身体，但前者偏向神经-演化说明，后者偏向生成论与现象学；丹尼特与巴尔斯都反对笛卡尔剧场，但前者更强调叙事竞争，后者更强调信息广播。
+      `;
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+
+    function showAll() {
+      show('all-scientists');
+      const list = document.getElementById('allList');
+      list.innerHTML = Object.values(scientists).map(s => `
+        <div style="margin-bottom:28px; padding-bottom:22px; border-bottom:1px solid var(--border);">
+          <h2 style="font-size:1.35rem; margin:0 0 6px; color:var(--accent);">${s.name}</h2>
+          <p style="margin:0 0 10px; color:var(--muted); font-size:0.98rem;">${s.tagline}</p>
+          <div class="keywords" style="margin-bottom:10px;">${s.keywords.map(k => `<span class="keyword">${k}</span>`).join('')}</div>
+          <p style="font-size:0.95rem; color:var(--muted); margin:0 0 10px;">${s.books}</p>
+          <p style="margin:0; font-size:1rem;">${s.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    function backToResult() {
+      show('result');
+    }
+  </script>
+</body>
+</html>
