@@ -94,6 +94,8 @@
     .btn-option:hover { background: var(--accent-light); border-color: var(--accent); }
     .btn-option.selected { background: var(--accent-light); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
     .btn-option.selected .label { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-option.special { border-style: dashed; color: var(--muted); }
+    .btn-option.special.selected { color: var(--text); }
     .quiz-nav {
       display: flex;
       justify-content: space-between;
@@ -392,12 +394,13 @@
       <h1>你更像哪位意识科学家？</h1>
       <p class="subtitle">从达马西奥的身体自我，到丹尼特的多重草稿，再到梅辛格的自我隧道……意识研究有截然不同的路径。回答 25 个问题，看看你的直觉最接近哪一位（或哪一派）思想家。</p>
       <div class="intro">
-        <p>本测试基于七位意识研究领域代表人物的核心立场设计：</p>
-        <p>安东尼奥·达马西奥、托马斯·梅辛格、丹尼尔·丹尼特、克里斯托夫·科赫、伯纳德·巴尔斯、安迪·克拉克、瓦雷拉 / 汤普森 / 罗施。</p>
+        <p>本测试基于八位意识研究领域代表人物的核心立场设计：</p>
+        <p>安东尼奥·达马西奥、托马斯·梅辛格、丹尼尔·丹尼特、克里斯托夫·科赫、伯纳德·巴尔斯、安迪·克拉克、瓦雷拉 / 汤普森 / 罗施，以及斯坦尼斯拉斯·迪昂。</p>
         <p>请注意：测试中出现的「引用观点」或「被批判观点」并不代表作者本人立场；计分映射已经尽量反映每位学者本人支持的理论取向。</p>
       </div>
       <button class="btn btn-primary" onclick="showTutorialIntro()">开始测试</button>
       <p class="note" style="margin-top: 22px; padding-top: 14px;">本网站使用「kimi-k2.7-code」辅助完成，由「ChatGPT」生成图片。</p>
+      <p class="note">本网站为作者 AI 搭建网站练手之作，如有改进建议可进 QQ 248376445 作者本人读书交流群交流，感谢各位关注参与。</p>
     </section>
 
     <!-- 前置提示页 -->
@@ -430,7 +433,7 @@
       <p class="hint" id="quizHint">请选择一项后点击「下一题」</p>
     </section>
 
-    <!-- 结果页 -->
+    <!-- 结果页：匹配学者 -->
     <section id="result" class="hidden fade">
       <div class="question-number">你的测试结果</div>
       <img id="rWordCloud" class="wordcloud" alt="科学家词云图" src="">
@@ -445,7 +448,7 @@
       <div class="description" id="rStance"></div>
 
       <div class="profile-box">
-        <div class="section-title" style="margin-top:0">意识形态剖面（与七位学者的匹配度）</div>
+        <div class="section-title" style="margin-top:0">意识形态剖面（与八位学者的匹配度）</div>
         <div id="rProfile"></div>
       </div>
 
@@ -472,9 +475,70 @@
       <p class="note">免责声明：本测试仅供学习与娱乐，无法替代对原著的深入阅读。每位学者的思想都在不断发展，此处呈现的是其在该资料中表达的核心取向。</p>
     </section>
 
+    <!-- 结果页：独立思考者 -->
+    <section id="result-disagree" class="hidden fade">
+      <div class="question-number">你的测试结果</div>
+      <h2 class="result-name">你是一位潜在的「意识理论家」</h2>
+      <p class="result-tagline">你的理解很独特，也许能成为新的意识理论家。</p>
+      <div class="description">
+        <p>在 25 道题中，你有 <strong id="rdDisagreeCount">0</strong> 次选择了「我都不同意，有别的看法」——这本身是一种值得珍视的理论姿态。</p>
+        <p>意识科学仍然充满分歧：全局工作空间、整合信息、预测加工、生成论、现象自我模型……每一位大家都有自己的假设。而你已经不满足于在现成选项里做选择，开始从更独特的位置思考意识问题。</p>
+        <p>继续保持这份警觉与诚实。也许未来的意识研究，正需要你这种既熟悉现有理论、又敢于提出新框架的头脑。</p>
+      </div>
+
+      <div class="profile-box">
+        <div class="section-title" style="margin-top:0">意识形态剖面（与八位学者的匹配度）</div>
+        <div id="rdProfile"></div>
+      </div>
+
+      <div class="runner-ups">
+        <div class="section-title">相对而言最接近你的学者</div>
+        <ul id="rdRunnerUps"></ul>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="restartQuiz()">再测一次</button>
+        <button class="btn btn-secondary" onclick="showAll()">查看全部学者</button>
+      </div>
+      <p class="note">免责声明：本测试仅供学习与娱乐，无法替代对原著的深入阅读。</p>
+    </section>
+
+    <!-- 结果页：懵懂而诚实 -->
+    <section id="result-dontknow" class="hidden fade">
+      <div class="question-number">你的测试结果</div>
+      <h2 class="result-name">你对这个领域懵懂而诚实</h2>
+      <p class="result-tagline">保持好奇，意识科学的大门向你敞开。</p>
+      <div class="description">
+        <p>在 25 道题中，你有 <strong id="rkDontKnowCount">0</strong> 次选择了「我不知道，先看下一题吧」——这并不可耻，反而是学习的起点。</p>
+        <p>意识问题涉及神经科学、哲学、心理学、人工智能等多个领域，概念密集、假说纷杂。敢于承认「不知道」，比强行选择更有价值。</p>
+        <p>建议你从入门读物开始，逐步了解这些学者的核心思想。随着阅读深入，你会逐渐形成自己的意识观。</p>
+      </div>
+
+      <div class="profile-box">
+        <div class="section-title" style="margin-top:0">意识形态剖面（与八位学者的匹配度）</div>
+        <div id="rkProfile"></div>
+      </div>
+
+      <div class="reading-path">
+        <div class="section-title" style="margin-top:0">推荐入门路径</div>
+        <ol>
+          <li>迪昂《脑与意识》——从实验角度理解意识通达、全局神经元工作空间</li>
+          <li>丹尼特《心灵种种》——以演化视角看意识的多种形态</li>
+          <li>达马西奥《笛卡尔的错误》——情绪、身体与理性的关系</li>
+          <li>瓦雷拉等《具身心智》——认知科学与现象学的对话</li>
+        </ol>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="restartQuiz()">再测一次</button>
+        <button class="btn btn-secondary" onclick="showAll()">查看全部学者</button>
+      </div>
+      <p class="note">免责声明：本测试仅供学习与娱乐，无法替代对原著的深入阅读。</p>
+    </section>
+
     <!-- 全部学者页 -->
     <section id="all-scientists" class="hidden fade">
-      <h1>七位意识科学家速览</h1>
+      <h1>八位意识科学家速览</h1>
       <p class="subtitle">点击「返回结果」可回到你的测试结果。</p>
       <div id="allList"></div>
       <div class="actions">
@@ -591,180 +655,250 @@
           '深入：Evan Thompson《Mind in Life》——生命与心智的连续性',
           '进阶：神经现象学（neurophenomenology）方法论文与禅修认知科学'
         ]
+      },
+      dehaene: {
+        id: 'dehaene',
+        name: '斯坦尼斯拉斯·迪昂（Stanislas Dehaene）',
+        tagline: '意识是信息突破阈限后进入全局神经元工作空间并被广播的过程。',
+        keywords: ['全局神经元工作空间', '意识通达', '阈下知觉', '前意识', '意识标志', 'P3 波'],
+        books: '代表资料：《脑与意识》（Consciousness and the Brain）',
+        image: '词云图/斯坦尼斯拉斯·迪昂.png',
+        desc: '迪昂是法国认知神经科学家，以实验研究意识著称。他提出「全局神经元工作空间理论」（GNW）：意识产生于感觉信息突破通达阈限，并引发前额叶-顶叶网络的大规模「点燃」（ignition）与全脑广播。通过掩蔽、注意瞬脱、双眼竞争等实验，他识别出「意识的标志」——如 P3 波、晚期刺激触发反应、γ 波段同步等。迪昂区分「阈下」「前意识」「意识」三种状态，并强调意识研究应是可实验检验的：先解释意识通达（access consciousness），再逐步逼近主观体验。',
+        stance: '本人观点：意识即信息的通达与全局广播；意识有可在实验中测量的神经标志；注意与意识密切相关但并不等同；意识科学应优先解决可被检验的通达问题。',
+        reading: [
+          '入门：《脑与意识》——意识通达、全局神经元工作空间与实验方法',
+          '深入：Dehaene & Changeux 关于全局神经元工作空间的计算模型',
+          '延伸：迪昂《阅读与意识》《数感》《如何学习》——认知神经科学视角'
+        ]
       }
     };
 
-    const optionLabels = ['A','B','C','D','E','F'];
+    const optionLabels = ['A','B','C','D','E','F','G','H'];
+    const specialKeys = ['dontKnow','disagree'];
+    const specialLabels = { dontKnow: '？', disagree: '✕' };
+    const specialTexts = {
+      dontKnow: '我不知道，先看下一题吧',
+      disagree: '我都不同意，有别的看法'
+    };
+    function isSpecial(key) { return specialKeys.includes(key); }
 
-    // ===== 测试题：每题四个选项，每个选项给对应学者加分 =====
+    // ===== 测试题：每题多个选项，每个选项给对应学者加分 =====
     const questions = [
       {
         text: '如果要把意识比喻成一个系统，它更像：',
         A: { text: '一场由多个演奏者共同完成的交响乐——没有单独指挥，但涌现出一个整体', scores: { damasio: 2, baars: 1, varela: 1 } },
         B: { text: '一部多重草稿同时在编辑的叙事——没有中央舞台，只有胜出的草稿成为意识', scores: { dennett: 2, metzinger: 1 } },
-        C: { text: '一个中央剧院舞台——演员上台表演，聚光灯照亮的内容被全场观众看见', scores: { baars: 2, koch: 1 } },
-        D: { text: '一台不断预测世界的层级化机器——通过最小化预测误差来感知和行动', scores: { clark: 2, varela: 1 } }
+        C: { text: '一个中央剧院舞台——演员上台表演，聚光灯照亮的内容被全场观众看见', scores: { baars: 2, koch: 1, dehaene: 2 } },
+        D: { text: '一台不断预测世界的层级化机器——通过最小化预测误差来感知和行动', scores: { clark: 2, varela: 1 } },
+        E: { text: '脑内一次大规模信息广播——当感觉信息被前额叶-顶叶网络「点燃」并传遍全脑时，意识才出现', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '生命体在与环境耦合中持续生成的意义场——没有预成的世界，只有行动中的世界', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '意识体验最根本的来源是：',
         A: { text: '身体内部状态的内稳态调节、情绪与感受', scores: { damasio: 2, varela: 1 } },
         B: { text: '大脑对感官输入的持续预测与预测误差最小化', scores: { clark: 2, koch: 1 } },
-        C: { text: '信息进入全局工作空间并被广播到全脑', scores: { baars: 2 } },
-        D: { text: '多重草稿竞争中胜出的叙事内容', scores: { dennett: 2, metzinger: 1 } }
+        C: { text: '信息进入全局工作空间并被广播到全脑', scores: { baars: 2, dehaene: 2 } },
+        D: { text: '多重草稿竞争中胜出的叙事内容', scores: { dennett: 2, metzinger: 1 } },
+        E: { text: '刺激突破约 300 毫秒的通达阈限，并在前额叶引发可报告的神经「点火」', scores: { dehaene: 2, koch: 1 } },
+        F: { text: '透明的现象自我模型对世界的持续模拟', scores: { metzinger: 2, dennett: 1 } }
       },
       {
         text: '关于「自我」，你最认同：',
         A: { text: '自我是大脑构建的一个现象模型 / 虚拟现实，我们生活在「自我隧道」里', scores: { metzinger: 2, dennett: 1 } },
         B: { text: '自我是生命体在演化中形成的动态加工，从原我到核心自我再到自传体自我', scores: { damasio: 2, varela: 1 } },
         C: { text: '自我是叙事重心，是随时间编织出来的故事', scores: { dennett: 2 } },
-        D: { text: '自我是通过行动与环境共同生成的，不是预先存在的实体', scores: { varela: 2, clark: 1 } }
+        D: { text: '自我是通过行动与环境共同生成的，不是预先存在的实体', scores: { varela: 2, clark: 1 } },
+        E: { text: '自我是可以被实验研究的可报告对象：关键不在于「我是什么实体」，而在于哪些自我相关信息能进入全局通达', scores: { dehaene: 2, dennett: 1, baars: 1 } },
+        F: { text: '自我是身体状态映射与情绪价值的整合，为决策提供持续参考', scores: { damasio: 2, metzinger: 1 } }
       },
       {
         text: '在研究意识时，你认为最优先的是：',
-        A: { text: '寻找意识的神经相关物（NCC），把意识还原为神经机制', scores: { koch: 2, baars: 1 } },
+        A: { text: '寻找意识的神经相关物（NCC），把意识还原为神经机制', scores: { koch: 2, baars: 1, dehaene: 1 } },
         B: { text: '认真对待第一人称体验与现象学，意识不是纯客观对象', scores: { metzinger: 2, damasio: 1, varela: 1 } },
-        C: { text: '构建可计算的全局工作空间模型和人工智能意识', scores: { baars: 2, dennett: 1 } },
-        D: { text: '理解大脑作为预测机器如何与身体和世界互动', scores: { clark: 2 } }
+        C: { text: '构建可计算的全局工作空间模型和人工智能意识', scores: { baars: 2, dennett: 1, dehaene: 1 } },
+        D: { text: '理解大脑作为预测机器如何与身体和世界互动', scores: { clark: 2 } },
+        E: { text: '用掩蔽、注意瞬脱、双眼竞争等实验精确测量「意识通达」的阈值与神经标志', scores: { dehaene: 2, koch: 1 } },
+        F: { text: '通过神经现象学把禅修训练与神经科学实验结合起来', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '知觉的本质更接近：',
-        A: { text: '大脑建构对外部世界的内部表征或模型', scores: { koch: 1, baars: 1, metzinger: 1 } },
+        A: { text: '大脑建构对外部世界的内部表征或模型', scores: { koch: 1, baars: 1, metzinger: 1, dehaene: 1 } },
         B: { text: '行动者与环境互动生成的结果，没有预成的「外部世界」等待被表征', scores: { varela: 2, clark: 1 } },
         C: { text: '大脑对世界原因的层级化概率推断', scores: { clark: 2, koch: 1 } },
-        D: { text: '感觉信息经过选择性注意进入意识舞台的过程', scores: { baars: 2 } }
+        D: { text: '感觉信息经过选择性注意进入意识舞台的过程', scores: { baars: 2, dehaene: 1 } },
+        E: { text: '信息在特定神经回路中被广播并进入「可报告」状态的过程', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '身体状态映射与情绪价值共同塑造的「感受变调」', scores: { damasio: 2, varela: 1 } }
       },
       {
         text: '关于自由意志，你更倾向：',
         A: { text: '自由是复杂系统中「值得想要的」一种能力，不是神秘魔力', scores: { dennett: 2, clark: 1, baars: 1 } },
         B: { text: '它在深层上受生物内稳态与神经机制约束，某种程度是一种建构或幻觉', scores: { metzinger: 2, damasio: 1 } },
         C: { text: '自由意志体验是自我模型的一部分，但不是因果上根本的自由', scores: { metzinger: 2, dennett: 1 } },
-        D: { text: '自由体现在行动者通过主动推断塑造感知-运动循环的能力', scores: { clark: 2, varela: 1 } }
+        D: { text: '自由体现在行动者通过主动推断塑造感知-运动循环的能力', scores: { clark: 2, varela: 1 } },
+        E: { text: '自由意志体验可能是大脑在决策后通过全局工作空间重新叙事、报告出来的结果', scores: { dehaene: 2, dennett: 1 } },
+        F: { text: '自由意志是社会文化内稳态与语言叙事共同塑造的自我解释', scores: { damasio: 1, dennett: 1, varela: 1 } }
       },
       {
         text: '意识与无意识加工的关系是：',
-        A: { text: '意识只是全局工作空间中少数被广播的信息，多数加工是无意识的', scores: { baars: 2, dennett: 1, koch: 1 } },
+        A: { text: '意识只是全局工作空间中少数被广播的信息，多数加工是无意识的', scores: { baars: 2, dehaene: 2, dennett: 1, koch: 1 } },
         B: { text: '意识与无意识的边界是流动的，意识从身体-大脑连续体中涌现', scores: { damasio: 2, varela: 1, clark: 1 } },
         C: { text: '意识是多重草稿中暂时胜出的部分，多数草稿处于无意识中', scores: { dennett: 2, baars: 1 } },
-        D: { text: '无意识加工是自我模型自动运行的结果，意识是其透明化的产物', scores: { metzinger: 2 } }
+        D: { text: '无意识加工是自我模型自动运行的结果，意识是其透明化的产物', scores: { metzinger: 2 } },
+        E: { text: '无意识加工也能被注意调节；意识的关键是信息能否被全脑通达和报告', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '无意识是预测机器持续运行的基底，意识是误差信号显著时的更新', scores: { clark: 2, dennett: 1 } }
       },
       {
         text: '主观体验（如红色的「红ness」、疼痛的「痛ness」）是：',
-        A: { text: '真实的现象特征，是意识科学必须解释的核心 explanandum', scores: { metzinger: 2, damasio: 1, koch: 1 } },
-        B: { text: '可以在信息加工 / 功能角色中被解释或消解，不必设定神秘本质', scores: { dennett: 2, baars: 1, clark: 1 } },
+        A: { text: '真实的现象特征，是意识科学必须解释的核心 explanandum', scores: { metzinger: 2, damasio: 1, koch: 1, dehaene: 1 } },
+        B: { text: '可以在信息加工 / 功能角色中被解释或消解，不必设定神秘本质', scores: { dennett: 2, baars: 1, clark: 1, dehaene: 1 } },
         C: { text: '是身体状态映射产生的感受变调，与内稳态价值相连', scores: { damasio: 2, varela: 1 } },
-        D: { text: '对应特定神经模式或信息整合结构的可还原现象', scores: { koch: 2, baars: 1 } }
+        D: { text: '对应特定神经模式或信息整合结构的可还原现象', scores: { koch: 2, baars: 1, dehaene: 1 } },
+        E: { text: '对应可被实验记录的「意识标志」：P3 波、晚期反应、γ 同步、前额叶点燃等', scores: { dehaene: 2, koch: 1 } },
+        F: { text: '是透明的自我模型对世界的呈现方式，是第一人称视角不可分割的部分', scores: { metzinger: 2, dennett: 1 } }
       },
       {
         text: '身体在心智和意识中的地位是：',
         A: { text: '身体是心智的根基，认知与意识都深嵌于身体之中', scores: { damasio: 2, varela: 2, clark: 1 } },
-        B: { text: '心智本质上是信息处理，身体主要提供输入与行为输出', scores: { dennett: 1, baars: 1, koch: 2 } },
+        B: { text: '心智本质上是信息处理，身体主要提供输入与行为输出', scores: { dennett: 1, baars: 1, koch: 2, dehaene: 1 } },
         C: { text: '身体是预测机器的组成部分，通过行动塑造感知输入', scores: { clark: 2, varela: 1 } },
-        D: { text: '身体自我模型可以被实验操纵，说明自我与身体是分离的', scores: { metzinger: 2, dennett: 1 } }
+        D: { text: '身体自我模型可以被实验操纵，说明自我与身体是分离的', scores: { metzinger: 2, dennett: 1 } },
+        E: { text: '身体是产生稳定神经表征的输入源，意识核心在于这些表征能否进入全局工作空间', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '身体是自创生系统维持自身同一性的边界，认知在此边界上生成意义', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '动物是否能拥有意识？',
         A: { text: '许多动物拥有某种形式的意识和自我，尤其是哺乳动物和鸟类', scores: { damasio: 2, varela: 1 } },
-        B: { text: '意识取决于特定的信息整合 / 神经结构，不能简单推广', scores: { koch: 2, metzinger: 1 } },
+        B: { text: '意识取决于特定的信息整合 / 神经结构，不能简单推广', scores: { koch: 2, metzinger: 1, dehaene: 1 } },
         C: { text: '任何能进行感知-运动循环和自我生成的生命系统都可能拥有某种意识', scores: { varela: 2, damasio: 1 } },
-        D: { text: '只有具备复杂全局工作空间或叙事能力的系统才可能拥有意识', scores: { baars: 2, dennett: 1 } }
+        D: { text: '只有具备复杂全局工作空间或叙事能力的系统才可能拥有意识', scores: { baars: 2, dennett: 1, dehaene: 1 } },
+        E: { text: '意识能力与前额叶-顶叶网络的复杂度有关，猴子、婴儿等可通过实验推断', scores: { dehaene: 2, koch: 1 } },
+        F: { text: '动物或许拥有核心自我与原始感受，但自传体自我需要语言与社会叙事', scores: { damasio: 2, metzinger: 1 } }
       },
       {
         text: '意识的演化功能更可能是：',
         A: { text: '更高效的生命调控与价值管理', scores: { damasio: 2, clark: 1 } },
-        B: { text: '整合分散信息，使全局可及以支持复杂决策与语言', scores: { baars: 2, dennett: 1, koch: 1 } },
+        B: { text: '整合分散信息，使全局可及以支持复杂决策与语言', scores: { baars: 2, dennett: 1, koch: 1, dehaene: 1 } },
         C: { text: '帮助有机体通过预测和行动减少不确定性', scores: { clark: 2, varela: 1 } },
-        D: { text: '让自我模型能够监控和调节有机体与环境的关系', scores: { metzinger: 2, damasio: 1 } }
+        D: { text: '让自我模型能够监控和调节有机体与环境的关系', scores: { metzinger: 2, damasio: 1 } },
+        E: { text: '使大脑能把关键信息广播到全脑，让机体报告并灵活应对新异刺激', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '让生命系统在不断变化的环境中维持自身同一性并生成意义', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '面对「为什么物理过程会有主观体验」这个难问题，你更倾向：',
-        A: { text: '通过持续神经科学研究，难问题会逐步消解', scores: { koch: 2, baars: 1, dennett: 1 } },
+        A: { text: '通过持续神经科学研究，难问题会逐步消解', scores: { koch: 2, baars: 1, dennett: 1, dehaene: 1 } },
         B: { text: '需要重新思考主体性、身体和世界的关系，甚至接受某种不可还原性', scores: { metzinger: 2, damasio: 1, varela: 1 } },
         C: { text: '难问题是错误的问题，感质概念本身是误导性的', scores: { dennett: 2 } },
-        D: { text: '意识与生命的自我生成、意义生成不可分离', scores: { varela: 2, damasio: 1 } }
+        D: { text: '意识与生命的自我生成、意义生成不可分离', scores: { varela: 2, damasio: 1 } },
+        E: { text: '先把「意识通达」的实验问题（access consciousness）解决，难问题会随之缩小', scores: { dehaene: 2, dennett: 1 } },
+        F: { text: '难问题本身就是意识研究的指南，提醒我们第三人称方法有内在局限', scores: { metzinger: 2, varela: 1 } }
       },
       {
         text: '情绪与理性的关系更接近：',
         A: { text: '情绪通过躯体标记参与决策，理性离不开情绪和感受', scores: { damasio: 2 } },
-        B: { text: '情绪和感受是自我模型中的信息状态，可被功能分析', scores: { metzinger: 1, dennett: 1 } },
+        B: { text: '情绪和感受是自我模型中的信息状态，可被功能分析', scores: { metzinger: 1, dennett: 1, dehaene: 1 } },
         C: { text: '情绪和预测误差、精确度调控相关，指导行动选择', scores: { clark: 2, damasio: 1 } },
-        D: { text: '情绪是全局广播的重要信号，协调认知资源', scores: { baars: 2 } }
+        D: { text: '情绪是全局广播的重要信号，协调认知资源', scores: { baars: 2 } },
+        E: { text: '情绪能迅速把机体状态广播到全脑，帮助大脑选择进入意识的优先内容', scores: { dehaene: 2, baars: 1, damasio: 1 } },
+        F: { text: '情绪是身体-环境互动中生成的意义调节，为行动定向', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '你如何看待梦境、离体体验等异常意识状态？',
         A: { text: '它们揭示了自我模型与身体可以解耦，自我是建构的', scores: { metzinger: 2, dennett: 1 } },
         B: { text: '它们是大脑预测机制在离线状态下的运行', scores: { clark: 2, baars: 1 } },
         C: { text: '它们说明意识根植于身体，但身体的边界可以被重新映射', scores: { damasio: 1, varela: 1 } },
-        D: { text: '它们主要对应神经相关物的特殊激活模式，可用于研究意识机制', scores: { koch: 2 } }
+        D: { text: '它们主要对应神经相关物的特殊激活模式，可用于研究意识机制', scores: { koch: 2 } },
+        E: { text: '睡梦等状态改变了意识通达的阈值与广播效率，是检验全局工作空间的好材料', scores: { dehaene: 2 } },
+        F: { text: '它们是自我隧道透明度变化或叙事草稿竞争失衡的产物', scores: { metzinger: 2, dennett: 1 } }
       },
       {
         text: '人工智能是否可能拥有意识？',
-        A: { text: '只有具备正确因果结构和信息整合能力的系统才可能', scores: { koch: 2, metzinger: 1 } },
-        B: { text: '如果AI拥有全局工作空间和广播机制，原则上可能', scores: { baars: 2, dennett: 1 } },
+        A: { text: '只有具备正确因果结构和信息整合能力的系统才可能', scores: { koch: 2, metzinger: 1, dehaene: 1 } },
+        B: { text: '如果AI拥有全局工作空间和广播机制，原则上可能', scores: { baars: 2, dennett: 1, dehaene: 2 } },
         C: { text: 'AI可以模拟功能但没有生命/身体/内稳态，因此不可能真正有意识', scores: { damasio: 2, varela: 1 } },
-        D: { text: '关键在于是否具身嵌入世界并通过行动生成意义', scores: { varela: 2, clark: 1 } }
+        D: { text: '关键在于是否具身嵌入世界并通过行动生成意义', scores: { varela: 2, clark: 1 } },
+        E: { text: '如果AI实现了全局神经元工作空间式的点燃与广播，可以讨论其意识', scores: { dehaene: 2, baars: 1 } },
+        F: { text: 'AI 至多拥有工具性智能，缺乏现象自我模型与受苦能力', scores: { metzinger: 2, damasio: 1 } }
       },
       {
         text: '意识研究最适合的方法论是：',
         A: { text: '第三人称神经科学与第一人称现象学相结合', scores: { metzinger: 2, damasio: 1, varela: 1 } },
-        B: { text: '以行为、脑活动和第三人称异己现象学为主', scores: { dennett: 2, koch: 1 } },
-        C: { text: '构建计算模型和全局工作空间模拟', scores: { baars: 2, clark: 1 } },
-        D: { text: '神经现象学：将现象学训练与神经科学实验结合', scores: { varela: 2, damasio: 1 } }
+        B: { text: '以行为、脑活动和第三人称异己现象学为主', scores: { dennett: 2, koch: 1, dehaene: 1 } },
+        C: { text: '构建计算模型和全局工作空间模拟', scores: { baars: 2, clark: 1, dehaene: 1 } },
+        D: { text: '神经现象学：将现象学训练与神经科学实验结合', scores: { varela: 2, damasio: 1 } },
+        E: { text: '以可重复的认知神经实验为主：掩蔽、双眼竞争、注意瞬脱、颅内记录等', scores: { dehaene: 2, koch: 1 } },
+        F: { text: '从演化、功能与行为模式出发，避免预设神秘实体', scores: { dennett: 2, baars: 1 } }
       },
       {
         text: '语言与意识的关系是：',
-        A: { text: '语言是全局广播的重要媒介，扩展了意识内容', scores: { baars: 2, dennett: 1 } },
+        A: { text: '语言是全局广播的重要媒介，扩展了意识内容', scores: { baars: 2, dennett: 1, dehaene: 1 } },
         B: { text: '语言是叙事自我的基础，但不是意识本身的前提', scores: { damasio: 2, metzinger: 1 } },
         C: { text: '语言是认知工具，可以延展心智，但不是意识的边界', scores: { clark: 2, dennett: 1 } },
-        D: { text: '语言是社会文化内稳态的产物，服务于价值管理', scores: { damasio: 1, varela: 1 } }
+        D: { text: '语言是社会文化内稳态的产物，服务于价值管理', scores: { damasio: 1, varela: 1 } },
+        E: { text: '语言把信息编码为可被工作空间广播、报告和长期保持的符号形式', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '语言使现象自我模型获得叙事化、社会化的稳定结构', scores: { metzinger: 2, dennett: 1 } }
       },
       {
         text: '你如何看待「心身关系」？',
         A: { text: '心身是一元的连续体，意识是生物组织的复杂形式', scores: { damasio: 2, varela: 1 } },
-        B: { text: '心身问题可以通过信息加工 / 功能主义得到解释', scores: { dennett: 2, baars: 1, koch: 1 } },
+        B: { text: '心身问题可以通过信息加工 / 功能主义得到解释', scores: { dennett: 2, baars: 1, koch: 1, dehaene: 1 } },
         C: { text: '意识是大脑生成的世界模拟，身体是模型的一部分', scores: { metzinger: 2, clark: 1 } },
-        D: { text: '认知是大脑-身体-环境耦合的系统属性', scores: { clark: 2, varela: 2 } }
+        D: { text: '认知是大脑-身体-环境耦合的系统属性', scores: { clark: 2, varela: 2 } },
+        E: { text: '心身关系可通过实验找到意识通达的神经阈值来逐步阐明', scores: { dehaene: 2, koch: 1 } },
+        F: { text: '身体是主体性的基底，但不能被还原为单纯的神经机器', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '意识的内容是如何被选择的？',
-        A: { text: '通过注意竞争进入有限容量的全局工作空间', scores: { baars: 2, koch: 1 } },
+        A: { text: '通过注意竞争进入有限容量的全局工作空间', scores: { baars: 2, koch: 1, dehaene: 1 } },
         B: { text: '通过多重草稿的并行竞争和胜利', scores: { dennett: 2, baars: 1 } },
         C: { text: '通过预测误差和精确度权重的调控', scores: { clark: 2 } },
-        D: { text: '通过情绪 / 价值标记对表象进行剪辑和凸显', scores: { damasio: 2, varela: 1 } }
+        D: { text: '通过情绪 / 价值标记对表象进行剪辑和凸显', scores: { damasio: 2, varela: 1 } },
+        E: { text: '前额叶-顶叶网络的「点火」决定哪些信息获得全局可及性', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '通过透明的自我模型对输入进行监控与整合', scores: { metzinger: 2, damasio: 1 } }
       },
       {
         text: '记忆在意识中的作用是：',
         A: { text: '记忆是构建自传体自我的基础', scores: { damasio: 2, metzinger: 1 } },
         B: { text: '记忆为预测模型提供先验，减少不确定性', scores: { clark: 2, baars: 1 } },
         C: { text: '记忆是全局工作空间可调用的一种无意识资源', scores: { baars: 2, dennett: 1 } },
-        D: { text: '记忆嵌入身体-环境的交互历史中，不是独立存储的表征', scores: { varela: 2, clark: 1 } }
+        D: { text: '记忆嵌入身体-环境的交互历史中，不是独立存储的表征', scores: { varela: 2, clark: 1 } },
+        E: { text: '记忆内容能否被意识通达，取决于它是否被工作空间重新激活并广播', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '记忆为自我模型提供时间上的连续性，是叙事重心的素材', scores: { dennett: 2, metzinger: 1 } }
       },
       {
         text: '社会互动对自我 / 意识的影响是：',
         A: { text: '社会互动塑造了自传体自我和社会文化内稳态', scores: { damasio: 2, varela: 1 } },
         B: { text: '社会认知通过镜像神经元和共享自我模型实现', scores: { metzinger: 2, damasio: 1 } },
         C: { text: '社会互动是认知延展的一部分，通过语言和文化工具实现', scores: { clark: 2, dennett: 1 } },
-        D: { text: '社会信息通过全局工作空间广播，协调群体行为', scores: { baars: 1 } }
+        D: { text: '社会信息通过全局工作空间广播，协调群体行为', scores: { baars: 1, dehaene: 1 } },
+        E: { text: '社会信息通过语言进入工作空间，使集体决策依赖可报告的意识内容', scores: { dehaene: 1, baars: 1, dennett: 1 } },
+        F: { text: '社会性是意义生成的基本维度，自我在互动中被共同构成', scores: { varela: 2, metzinger: 1 } }
       },
       {
         text: '时间意识（意识流）如何理解？',
         A: { text: '意识流是核心自我脉冲的连续序列，与当下感受相连', scores: { damasio: 2 } },
         B: { text: '意识流是多重草稿不断改写的时间性叙事', scores: { dennett: 2, metzinger: 1 } },
         C: { text: '意识流是预测模型在时间上的展开和更新', scores: { clark: 2, baars: 1 } },
-        D: { text: '意识流是现象自我模型持续生成的时间窗口', scores: { metzinger: 2, baars: 1 } }
+        D: { text: '意识流是现象自我模型持续生成的时间窗口', scores: { metzinger: 2, baars: 1 } },
+        E: { text: '意识事件需要约 300 毫秒以上的稳定神经激活才能被体验和报告', scores: { dehaene: 2, baars: 1 } },
+        F: { text: '意识流是身体-环境互动在时间中展开的连续意义生成', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '你如何理解「痛苦」？',
         A: { text: '痛苦是身体状态偏离内稳态的映射与感受', scores: { damasio: 2, varela: 1 } },
         B: { text: '痛苦是自我模型中负面的现象状态，具有重要的伦理意义', scores: { metzinger: 2 } },
         C: { text: '痛苦是大脑对组织损伤的预测 / 推断，可被重塑', scores: { clark: 2, dennett: 1 } },
-        D: { text: '痛苦对应特定的神经相关物，可用于定位意识机制', scores: { koch: 2 } }
+        D: { text: '痛苦对应特定的神经相关物，可用于定位意识机制', scores: { koch: 2 } },
+        E: { text: '痛苦是机体状态信号获得全局广播、成为可报告内容的结果', scores: { dehaene: 2, baars: 1, damasio: 1 } },
+        F: { text: '痛苦是生命系统对威胁的规范性回应，为行动提供动机', scores: { varela: 2, damasio: 1 } }
       },
       {
         text: '科学解释意识的最终目标是：',
-        A: { text: '找到意识的神经相关物，建立脑-意识对应表', scores: { koch: 2, baars: 1 } },
+        A: { text: '找到意识的神经相关物，建立脑-意识对应表', scores: { koch: 2, baars: 1, dehaene: 1 } },
         B: { text: '解释大脑如何生成现象自我模型和主观体验', scores: { metzinger: 2, koch: 1 } },
         C: { text: '用演化和功能解释意识在自然中的位置', scores: { dennett: 2, damasio: 1 } },
-        D: { text: '理解生命-心智-意义的连续生成过程', scores: { varela: 2, damasio: 1 } }
+        D: { text: '理解生命-心智-意义的连续生成过程', scores: { varela: 2, damasio: 1 } },
+        E: { text: '建立意识通达的计算-神经模型，精确预测哪些刺激能进入意识', scores: { dehaene: 2, baars: 1, koch: 1 } },
+        F: { text: '把第一人称经验与第三人称神经机制系统地连接起来', scores: { metzinger: 2, varela: 1 } }
       },
       {
         text: '如果必须选择一句话概括你的意识观，你会说：',
@@ -773,9 +907,18 @@
         C: { text: '「意识是多重草稿的胜出，自我是叙事重心。」', scores: { dennett: 3 } },
         D: { text: '「意识是进入全局工作空间并被广播的信息。」', scores: { baars: 3 } },
         E: { text: '「意识是对世界和自我的预测，行动即认知。」', scores: { clark: 2, varela: 1 } },
-        F: { text: '「意识是神经相关物所对应的生物信息整合现象。」', scores: { koch: 3 } }
+        F: { text: '「意识是神经相关物所对应的生物信息整合现象。」', scores: { koch: 3 } },
+        G: { text: '「意识是信息突破阈限后在前额叶-顶叶网络中点燃并广播的过程。」', scores: { dehaene: 3, baars: 1 } }
       }
     ];
+
+    // 为每道题添加两个特殊选项（不进入学者计分）
+    questions.forEach(q => {
+      q.special = {
+        dontKnow: { text: specialTexts.dontKnow },
+        disagree: { text: specialTexts.disagree }
+      };
+    });
 
     // ===== 前置名词释义 =====
     const tutorialQuestions = [
@@ -810,14 +953,32 @@
       {
         term: '感质（qualia）与难问题',
         text: '「感质」指主观体验的现象特征，例如红色的「红ness」、疼痛的「痛ness」。「难问题」则问：为什么物理过程会伴随主观体验？不同学者对这个问题的态度截然不同。通俗的来说，感质就像「草莓为什么是红的、疼痛为什么是痛的」这种「感觉本身」。难问题就像问：为什么一堆神经细胞放电，会魔法般地出现「我尝到了甜味」这种体验？这至今没有公认的简单答案。'
+      },
+      {
+        term: '意识通达 / 全局神经元工作空间',
+        text: '迪昂提出的核心概念。意识通达（conscious access）指信息从阈下或前意识状态进入可被报告、可被记忆、可被推理的意识状态的过程。全局神经元工作空间（GNW）则认为，意识对应感觉信息引发前额叶-顶叶网络的大规模「点燃」，并向全脑广播。通俗的来说，就像一个聚光灯：大部分画面处在黑暗里（无意识），有些画面被照亮到边缘（前意识），只有真正进入舞台中央并被全场观众看见的内容，才是你当下能明确说出「我看到了」的意识内容。'
       }
     ];
 
     let current = 0;
     let currentTutorial = 0;
-    const scores = { damasio:0, metzinger:0, dennett:0, koch:0, baars:0, clark:0, varela:0 };
+    const scores = { damasio:0, metzinger:0, dennett:0, koch:0, baars:0, clark:0, varela:0, dehaene:0 };
     // 每道题每位学者能获得的最高可能分（同一题内取最大值，再跨题累加）
-    const maxPossible = { damasio:45, metzinger:43, dennett:41, koch:28, baars:37, clark:37, varela:32 };
+    const maxPossible = {};
+    for (const id in scientists) maxPossible[id] = 0;
+    questions.forEach(q => {
+      const perQ = {};
+      for (const id in scientists) perQ[id] = 0;
+      optionLabels.forEach(key => {
+        const opt = q[key];
+        if (!opt || !opt.scores) return;
+        for (const id in opt.scores) {
+          if (perQ[id] < opt.scores[id]) perQ[id] = opt.scores[id];
+        }
+      });
+      for (const id in scientists) maxPossible[id] += perQ[id];
+    });
+
     let selectedAnswers = []; // 记录每道题选择的选项 key
     let historyStack = [];    // 记录浏览历史，用于「返回」
 
@@ -826,6 +987,8 @@
       if (!document.getElementById('tutorial').classList.contains('hidden')) return {page:'tutorial', idx: currentTutorial};
       if (!document.getElementById('quiz').classList.contains('hidden')) return {page:'quiz', idx: current};
       if (!document.getElementById('result').classList.contains('hidden')) return {page:'result'};
+      if (!document.getElementById('result-disagree').classList.contains('hidden')) return {page:'result'};
+      if (!document.getElementById('result-dontknow').classList.contains('hidden')) return {page:'result'};
       if (!document.getElementById('all-scientists').classList.contains('hidden')) return {page:'all-scientists'};
       return {page:'welcome'};
     }
@@ -867,251 +1030,4 @@
     }
 
     function buildToc() {
-      const list = document.getElementById('tocList');
-      list.innerHTML = '';
-      const makeSection = title => {
-        const el = document.createElement('div');
-        el.className = 'toc-section';
-        el.textContent = title;
-        return el;
-      };
-      const makeItem = (label, action) => {
-        const el = document.createElement('div');
-        el.className = 'toc-item';
-        el.innerHTML = label;
-        el.onclick = action;
-        return el;
-      };
-
-      list.appendChild(makeItem('前置提示', () => { recordPosition(); show('tutorial-intro'); }));
-      list.appendChild(makeSection('确认题'));
-      tutorialQuestions.forEach((q, i) => {
-        list.appendChild(makeItem(`${i+1}. ${q.term}`, () => { recordPosition(); currentTutorial = i; show('tutorial'); renderTutorialQuestion(); }));
-      });
-      list.appendChild(makeSection('正式题'));
-      questions.forEach((q, i) => {
-        const short = q.text.length > 18 ? q.text.slice(0, 18) + '…' : q.text;
-        list.appendChild(makeItem(`<span class="toc-check"></span>${i+1}. ${short}`, () => { recordPosition(); current = i; show('quiz'); renderQuestion(); }));
-      });
-      updateTocActive();
-    }
-
-    function show(id) {
-      ['welcome','tutorial-intro','tutorial','quiz','result','all-scientists'].forEach(s => document.getElementById(s).classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
-      document.getElementById(id).classList.add('fade');
-      const toc = document.getElementById('toc');
-      if (['tutorial-intro','tutorial','quiz'].includes(id)) toc.classList.remove('hidden');
-      else toc.classList.add('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      updateTocActive();
-    }
-
-    function showTutorialIntro() {
-      recordPosition();
-      show('tutorial-intro');
-    }
-
-    function startTutorial() {
-      recordPosition();
-      currentTutorial = 0;
-      show('tutorial');
-      renderTutorialQuestion();
-    }
-
-    function renderTutorialQuestion() {
-      const q = tutorialQuestions[currentTutorial];
-      document.getElementById('tNumber').textContent = `名词释义 ${currentTutorial + 1} / ${tutorialQuestions.length}`;
-      document.getElementById('tText').textContent = `Q：「${q.term}」是指${q.text}`;
-      const opts = document.getElementById('tOptions');
-      opts.innerHTML = '';
-      opts.appendChild(createOptionButton('A', '我理解了，继续吧', () => nextTutorial()));
-      opts.appendChild(createOptionButton('B', '我未理解，但先让我看看后面的', () => nextTutorial()));
-      updateTocActive();
-    }
-
-    function nextTutorial() {
-      recordPosition();
-      currentTutorial++;
-      if (currentTutorial < tutorialQuestions.length) {
-        renderTutorialQuestion();
-      } else {
-        startQuiz(true);
-      }
-    }
-
-    function createOptionButton(label, text, onClick) {
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-option';
-      btn.innerHTML = `<span class="label">${label}</span><span>${text}</span>`;
-      btn.onclick = onClick;
-      return btn;
-    }
-
-    function startQuiz(skipRecord = false) {
-      if (!skipRecord) recordPosition();
-      current = 0;
-      selectedAnswers = new Array(questions.length).fill(null);
-      for (const k in scores) scores[k] = 0;
-      show('quiz');
-      renderQuestion();
-    }
-
-    function renderQuestion() {
-      const q = questions[current];
-      document.getElementById('progressBar').style.width = ((current / questions.length) * 100) + '%';
-      document.getElementById('qNumber').textContent = `问题 ${current + 1} / ${questions.length}`;
-      document.getElementById('qText').textContent = q.text;
-      const opts = document.getElementById('options');
-      opts.innerHTML = '';
-      const selected = selectedAnswers[current];
-      optionLabels.forEach((key, idx) => {
-        const opt = q[key];
-        if (!opt) return;
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-option' + (selected === key ? ' selected' : '');
-        btn.innerHTML = `<span class="label">${key}</span><span>${opt.text}</span>`;
-        btn.onclick = () => selectOption(key);
-        opts.appendChild(btn);
-      });
-
-      // 更新导航按钮状态
-      document.getElementById('prevBtn').disabled = current === 0;
-      const nextBtn = document.getElementById('nextBtn');
-      const hasAnswer = selected !== null;
-      nextBtn.textContent = current === questions.length - 1 ? '查看结果' : '下一题 →';
-      nextBtn.disabled = !hasAnswer;
-
-      const hint = document.getElementById('quizHint');
-      hint.textContent = hasAnswer
-        ? '已选择，可点击「下一题」继续，或点击「上一题」返回修改'
-        : '请选择一项后点击「下一题」';
-      updateTocActive();
-    }
-
-    function selectOption(key) {
-      const q = questions[current];
-      // 如果已有选择，先撤销旧分数
-      const oldKey = selectedAnswers[current];
-      if (oldKey && q[oldKey]) {
-        const oldDelta = q[oldKey].scores;
-        for (const k in oldDelta) scores[k] -= oldDelta[k];
-      }
-      // 应用新选择分数
-      const delta = q[key].scores;
-      for (const k in delta) scores[k] += delta[k];
-      selectedAnswers[current] = key;
-      renderQuestion();
-    }
-
-    function allQuestionsAnswered() {
-      return selectedAnswers.every(a => a !== null);
-    }
-
-    function goNext() {
-      if (selectedAnswers[current] === null) return;
-      if (current === questions.length - 1) {
-        if (!allQuestionsAnswered()) {
-          const unanswered = selectedAnswers.map((a, i) => a === null ? i + 1 : null).filter(n => n !== null);
-          document.getElementById('quizHint').textContent = `请先完成全部 25 道正式题再查看结果。未答题：第 ${unanswered.join('、')} 题`;
-          return;
-        }
-        recordPosition();
-        showResult();
-        return;
-      }
-      recordPosition();
-      current++;
-      renderQuestion();
-    }
-
-    function goPrev() {
-      if (current > 0) {
-        recordPosition();
-        current--;
-        renderQuestion();
-      }
-    }
-
-    function showResult() {
-      show('result');
-      // 计算匹配度 = 得分 / 该学者理论最高分
-      const ranked = Object.keys(scientists).map(id => {
-        return { id, score: scores[id], pct: Math.round((scores[id] / maxPossible[id]) * 100) };
-      }).sort((a,b) => b.pct - a.pct);
-
-      const top = ranked[0];
-      const s = scientists[top.id];
-      document.getElementById('rWordCloud').src = s.image;
-      document.getElementById('rName').textContent = s.name;
-      document.getElementById('rTagline').textContent = s.tagline;
-      document.getElementById('rMatch').textContent = `匹配度 ${top.pct}%`;
-      document.getElementById('rKeywords').innerHTML = s.keywords.map(k => `<span class="keyword">${k}</span>`).join('');
-      document.getElementById('rBooks').textContent = s.books;
-      document.getElementById('rDesc').textContent = s.desc;
-      document.getElementById('rStance').textContent = s.stance;
-
-      // 意识形态剖面条形图
-      const profileEl = document.getElementById('rProfile');
-      profileEl.innerHTML = ranked.map(r => {
-        const rs = scientists[r.id];
-        const shortName = rs.name.split('（')[0].replace(/瓦雷拉 \/ 汤普森 \/ 罗施/, '瓦雷拉/汤普森/罗施');
-        const highlight = r.id === top.id ? ' highlight' : '';
-        return `
-          <div class="profile-bar">
-            <div class="profile-label" title="${rs.name}">${shortName}</div>
-            <div class="profile-track"><div class="profile-fill${highlight}" style="width:${r.pct}%"></div></div>
-            <div class="profile-pct">${r.pct}%</div>
-          </div>
-        `;
-      }).join('');
-
-      // 推荐阅读路径
-      document.getElementById('rReadingIntro').textContent = `你的意识观最接近 ${s.name.split('（')[0]}，以下是为这种取向量身推荐的阅读路径：`;
-      document.getElementById('rReadingList').innerHTML = s.reading.map(item => `<li>${item}</li>`).join('');
-
-      // 次要相似学者
-      const runnerUps = ranked.slice(1, 4);
-      document.getElementById('rRunnerUps').innerHTML = runnerUps.map(r => {
-        const rs = scientists[r.id];
-        return `<li><strong>${rs.name.split('（')[0]}</strong> — ${rs.tagline}（匹配度 ${r.pct}%）</li>`;
-      }).join('');
-
-      // 分歧与提醒
-      const lowest = ranked[ranked.length - 1];
-      const lowestName = scientists[lowest.id].name.split('（')[0];
-      document.getElementById('rTension').innerHTML = `
-        你与 <strong>${lowestName}</strong> 的匹配度最低（${lowest.pct}%），这意味着你在
-        <span class="tag">${scientists[lowest.id].keywords.slice(0,2).join('</span><span class="tag">')}</span>
-        等议题上与其核心直觉相距最远。需要提醒的是，任何测试都只能捕捉倾向，真实的思想往往比标签更复杂——例如达马西奥与瓦雷拉都重视身体，但前者偏向神经-演化说明，后者偏向生成论与现象学；丹尼特与巴尔斯都反对笛卡尔剧场，但前者更强调叙事竞争，后者更强调信息广播。
-      `;
-    }
-
-    function restartQuiz() {
-      startQuiz();
-    }
-
-    function showAll() {
-      recordPosition();
-      show('all-scientists');
-      const list = document.getElementById('allList');
-      list.innerHTML = Object.values(scientists).map(s => `
-        <div style="margin-bottom:28px; padding-bottom:22px; border-bottom:1px solid var(--border);">
-          <h2 style="font-size:1.35rem; margin:0 0 6px; color:var(--accent);">${s.name}</h2>
-          <p style="margin:0 0 10px; color:var(--muted); font-size:0.98rem;">${s.tagline}</p>
-          <div class="keywords" style="margin-bottom:10px;">${s.keywords.map(k => `<span class="keyword">${k}</span>`).join('')}</div>
-          <p style="font-size:0.95rem; color:var(--muted); margin:0 0 10px;">${s.books}</p>
-          <p style="margin:0; font-size:1rem;">${s.desc}</p>
-        </div>
-      `).join('');
-    }
-
-    function backToResult() {
-      recordPosition();
-      show('result');
-    }
-
-    buildToc();
-  </script>
-</body>
-</html>
+      const list = document.getElementById('tocLis
