@@ -91,8 +91,12 @@
       font-size: 1.05rem;
       line-height: 1.55;
     }
+    .btn-option {
+      transition: transform .12s ease, box-shadow .12s ease, background .15s ease, border-color .15s ease;
+    }
     .btn-option:hover { background: var(--accent-light); border-color: var(--accent); }
     .btn-option.selected { background: var(--accent-light); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+    .btn-option:active, .btn-option.clicked { transform: scale(0.98); }
     .btn-option.selected .label { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-option.special { border-style: dashed; color: var(--muted); }
     .btn-option.special.selected { color: var(--text); }
@@ -156,6 +160,27 @@
       font-weight: 600;
       margin: 0 0 28px;
       line-height: 1.45;
+    }
+    .tutorial-term {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+    .tutorial-definition,
+    .tutorial-analogy {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--text);
+      margin: 0 0 22px;
+      line-height: 1.7;
+    }
+    .tutorial-analogy {
+      color: var(--muted);
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
     }
     .fade { animation: fadeIn .45s ease both; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -921,42 +946,52 @@
     });
 
     // ===== 前置名词释义 =====
+    // 每道题拆成三段：术语 / 定义 / 通俗比喻
     const tutorialQuestions = [
       {
         term: '全局工作空间',
-        text: '大脑中一个有限容量的信息交换平台。大量并行的无意识加工模块竞争进入这个空间，被注意选中的信息会被广播到全脑，从而成为意识内容。通俗的来说，就像公司里的一个公共会议室：各个部门（视觉、听觉、记忆、语言等）都在自己办公室里默默干活，只有被选中进入会议室讨论的事项，才会被大家共同注意到，成为当下意识里的内容。'
+        definition: '大脑中一个有限容量的信息交换平台。大量并行的无意识加工模块竞争进入这个空间，被注意选中的信息会被广播到全脑，从而成为意识内容。',
+        analogy: '就像公司里的一个公共会议室：各个部门（视觉、听觉、记忆、语言等）都在自己办公室里默默干活，只有被选中进入会议室讨论的事项，才会被大家共同注意到，成为当下意识里的内容。'
       },
       {
         term: '神经相关物（NCC）',
-        text: '产生某种特定意识体验所需的最小神经机制。它关注的是「哪些神经活动对应着哪些主观体验」，是还原论意识研究的核心目标。通俗的来说，就像找出「播放某首歌所需的最小音响设备」：科学家想知道，当你看到红色、感到疼痛或想起妈妈时，大脑里最少需要哪些神经活动同时在运作。'
+        definition: '产生某种特定意识体验所需的最小神经机制。它关注的是「哪些神经活动对应着哪些主观体验」，是还原论意识研究的核心目标。',
+        analogy: '就像找出「播放某首歌所需的最小音响设备」：科学家想知道，当你看到红色、感到疼痛或想起妈妈时，大脑里最少需要哪些神经活动同时在运作。'
       },
       {
         term: '现象自我模型 / 自我隧道',
-        text: '大脑生成的一个透明的「自我」模型，让我们误以为内在有一个持续存在的「我」。梅辛格用「自我隧道」比喻：我们活在大脑构建的虚拟现实里，把隧道尽头的那个形象当成了真实的自己。通俗的来说，就像你戴着 VR 头盔玩游戏，你完全沉浸在游戏里，忘了头盔的存在，甚至把游戏里的角色当成了真正的自己。其实那个「我」只是大脑实时生成的一个体验模型。'
+        definition: '大脑生成的一个透明的「自我」模型，让我们误以为内在有一个持续存在的「我」。梅辛格用「自我隧道」比喻：我们活在大脑构建的虚拟现实里，把隧道尽头的那个形象当成了真实的自己。',
+        analogy: '就像你戴着 VR 头盔玩游戏，你完全沉浸在游戏里，忘了头盔的存在，甚至把游戏里的角色当成了真正的自己。其实那个「我」只是大脑实时生成的一个体验模型。'
       },
       {
         term: '多重草稿',
-        text: '丹尼特提出的意识模型：大脑里同时进行着许多并行的信息加工（草稿），没有中央舞台，也没有内在观众；哪些草稿在竞争中胜出，哪些就成为当下的意识内容。通俗的来说，就像新闻编辑部里，许多记者同时写同一条新闻的不同版本。没有总编辑坐在中间审阅，而是哪一版先被多数编辑部采用、传播出去，哪一版就成为我们今天看到的「官方报道」。'
+        definition: '丹尼特提出的意识模型：大脑里同时进行着许多并行的信息加工（草稿），没有中央舞台，也没有内在观众；哪些草稿在竞争中胜出，哪些就成为当下的意识内容。',
+        analogy: '就像新闻编辑部里，许多记者同时写同一条新闻的不同版本。没有总编辑坐在中间审阅，而是哪一版先被多数编辑部采用、传播出去，哪一版就成为我们今天看到的「官方报道」。'
       },
       {
         term: '预测加工 / 预测误差',
-        text: '大脑不是被动接收感官信息，而是持续预测即将到来的输入。当预测与真实输入不一致时，就会产生「预测误差」，大脑据此更新模型，以减少未来的不确定性。通俗的来说，就像你伸手去摸桌子上的杯子，大脑已经提前「猜到」杯子的形状和位置。如果杯子比你猜的更远或更轻，你就会惊讶一下，然后调整下次的猜测。这个惊讶就是「预测误差」。'
+        definition: '大脑不是被动接收感官信息，而是持续预测即将到来的输入。当预测与真实输入不一致时，就会产生「预测误差」，大脑据此更新模型，以减少未来的不确定性。',
+        analogy: '就像你伸手去摸桌子上的杯子，大脑已经提前「猜到」杯子的形状和位置。如果杯子比你猜的更远或更轻，你就会惊讶一下，然后调整下次的猜测。这个惊讶就是「预测误差」。'
       },
       {
         term: '生成论（具身心智）',
-        text: '认知不是对预成世界的内部表征，而是行动者通过感知-运动活动「生成」一个有意义的世界。心智、身体与环境共同构成意义，反对把心智看作孤立的计算机器。通俗的来说，就像蜘蛛织网：网不是蜘蛛脑袋里的一张地图，而是蜘蛛通过爬行、拉丝与环境互动，「织出」了一个属于它的世界。对我们人来说，世界也是通过我们看、走、摸、说，一步步「生成」出来的。'
+        definition: '认知不是对预成世界的内部表征，而是行动者通过感知-运动活动「生成」一个有意义的世界。心智、身体与环境共同构成意义，反对把心智看作孤立的计算机器。',
+        analogy: '就像蜘蛛织网：网不是蜘蛛脑袋里的一张地图，而是蜘蛛通过爬行、拉丝与环境互动，「织出」了一个属于它的世界。对我们人来说，世界也是通过我们看、走、摸、说，一步步「生成」出来的。'
       },
       {
         term: '原我 / 核心自我 / 自传体自我',
-        text: '达马西奥对自我的三层划分：原我（proto-self）是对身体状态的原始映射；核心自我（core self）产生于有机体与客体的互动；自传体自我（autobiographical self）则把个人记忆、社会角色与文化身份整合进来。通俗的来说，就像俄罗斯套娃：最里面的小娃娃是「原我」——你当下身体是冷是热、是饿是累的原始感觉；中间的娃娃是「核心自我」——你此刻正在摸手机、感到好奇的短暂主体；最外面的大娃娃是「自传体自我」——你记得自己是谁、从哪里来、有什么故事的那个完整的「我」。'
+        definition: '达马西奥对自我的三层划分：原我（proto-self）是对身体状态的原始映射；核心自我（core self）产生于有机体与客体的互动；自传体自我（autobiographical self）则把个人记忆、社会角色与文化身份整合进来。',
+        analogy: '就像俄罗斯套娃：最里面的小娃娃是「原我」——你当下身体是冷是热、是饿是累的原始感觉；中间的娃娃是「核心自我」——你此刻正在摸手机、感到好奇的短暂主体；最外面的大娃娃是「自传体自我」——你记得自己是谁、从哪里来、有什么故事的那个完整的「我」。'
       },
       {
         term: '感质（qualia）与难问题',
-        text: '「感质」指主观体验的现象特征，例如红色的「红ness」、疼痛的「痛ness」。「难问题」则问：为什么物理过程会伴随主观体验？不同学者对这个问题的态度截然不同。通俗的来说，感质就像「草莓为什么是红的、疼痛为什么是痛的」这种「感觉本身」。难问题就像问：为什么一堆神经细胞放电，会魔法般地出现「我尝到了甜味」这种体验？这至今没有公认的简单答案。'
+        definition: '「感质」指主观体验的现象特征，例如红色的「红ness」、疼痛的「痛ness」。「难问题」则问：为什么物理过程会伴随主观体验？不同学者对这个问题的态度截然不同。',
+        analogy: '感质就像「草莓为什么是红的、疼痛为什么是痛的」这种「感觉本身」。难问题就像问：为什么一堆神经细胞放电，会魔法般地出现「我尝到了甜味」这种体验？这至今没有公认的简单答案。'
       },
       {
         term: '意识通达 / 全局神经元工作空间',
-        text: '迪昂提出的核心概念。意识通达（conscious access）指信息从阈下或前意识状态进入可被报告、可被记忆、可被推理的意识状态的过程。全局神经元工作空间（GNW）则认为，意识对应感觉信息引发前额叶-顶叶网络的大规模「点燃」，并向全脑广播。通俗的来说，就像一个聚光灯：大部分画面处在黑暗里（无意识），有些画面被照亮到边缘（前意识），只有真正进入舞台中央并被全场观众看见的内容，才是你当下能明确说出「我看到了」的意识内容。'
+        definition: '迪昂提出的核心概念。意识通达（conscious access）指信息从阈下或前意识状态进入可被报告、可被记忆、可被推理的意识状态的过程。全局神经元工作空间（GNW）则认为，意识对应感觉信息引发前额叶-顶叶网络的大规模「点燃」，并向全脑广播。',
+        analogy: '就像一个聚光灯：大部分画面处在黑暗里（无意识），有些画面被照亮到边缘（前意识），只有真正进入舞台中央并被全场观众看见的内容，才是你当下能明确说出「我看到了」的意识内容。'
       }
     ];
 
@@ -1088,7 +1123,11 @@
     function renderTutorialQuestion() {
       const q = tutorialQuestions[currentTutorial];
       document.getElementById('tNumber').textContent = `名词释义 ${currentTutorial + 1} / ${tutorialQuestions.length}`;
-      document.getElementById('tText').textContent = `Q：「${q.term}」是指${q.text}`;
+      document.getElementById('tText').innerHTML = `
+        <div class="tutorial-term">${q.term}</div>
+        <div class="tutorial-definition">${q.definition}</div>
+        <div class="tutorial-analogy">${q.analogy}</div>
+      `;
       const opts = document.getElementById('tOptions');
       opts.innerHTML = '';
       opts.appendChild(createOptionButton('A', '我理解了，继续吧', () => nextTutorial()));
@@ -1106,11 +1145,39 @@
       }
     }
 
+    function playClickSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(620, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.07, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.12);
+      } catch (e) { /* 静默失败，不影响交互 */ }
+    }
+
+    function playClickFeedback(btn) {
+      playClickSound();
+      btn.classList.add('clicked');
+      setTimeout(() => btn.classList.remove('clicked'), 150);
+    }
+
     function createOptionButton(label, text, onClick, isSpecial = false) {
       const btn = document.createElement('button');
       btn.className = 'btn btn-option' + (isSpecial ? ' special' : '');
       btn.innerHTML = `<span class="label">${label}</span><span>${text}</span>`;
-      btn.onclick = onClick;
+      btn.onclick = (e) => {
+        playClickFeedback(btn);
+        onClick(e);
+      };
       return btn;
     }
 
